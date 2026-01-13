@@ -1,0 +1,7 @@
+{
+  "name": "NCAA Aviation Quiz Pro",
+  "description": "A high-performance professional aviation quiz platform for NCAA certification prep, featuring trade-specific exams, practice modes, and advanced progress tracking.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
