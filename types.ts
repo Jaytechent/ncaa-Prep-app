@@ -1,4 +1,3 @@
-
 export enum Trade {
   B1_ENGINEER = 'B1 Aircraft Maintenance Engineer',
   B2_ENGINEER = 'B2 Aircraft Maintenance Engineer',
@@ -53,4 +52,4 @@ export interface UserStats {
   }[];
 }
 
-export type View = 'LANDING' | 'AUTH' | 'DASHBOARD' | 'TRADE_SELECT' | 'QUIZ' | 'RESULTS' | 'REVIEW' | 'PROFILE' | 'ADMIN';
+export type View = 'LANDING' | 'AUTH' | 'DASHBOARD' | 'TRADE_SELECT' | 'QUIZ' | 'RESULTS' | 'REVIEW' | 'PROFILE' | 'ADMIN' | 'FLEET_SPECS';
