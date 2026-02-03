@@ -7,13 +7,14 @@ const {
   updateQuestion,
   deleteQuestion
 } = require('../controllers/questionController');
+const { protect, admin } = require('../middleware/authMiddleware');
 
 router.route('/')
   .get(getQuestions)
-  .post(createQuestion);
+  .post(protect, admin, createQuestion);
 
 router.route('/:id')
-  .put(updateQuestion)
-  .delete(deleteQuestion);
+  .put(protect, admin, updateQuestion)
+  .delete(protect, admin, deleteQuestion);
 
 module.exports = router;

@@ -6,11 +6,12 @@ interface LayoutProps {
   children: React.ReactNode;
   currentView: View;
   setView: (view: View) => void;
-  user: { name: string } | null;
+  user: { name: string, role: string } | null;
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, user }) => {
   const isAuthPage = currentView === 'AUTH' || currentView === 'LANDING';
+  const isAdmin = user?.role === 'admin';
 
   if (isAuthPage) return <>{children}</>;
 
@@ -42,12 +43,15 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, 
           >
             <span>👤</span> Profile
           </button>
-          <button 
-            onClick={() => setView('ADMIN')}
-            className={`w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors ${currentView === 'ADMIN' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
-          >
-            <span>⚙️</span> Admin
-          </button>
+          
+          {isAdmin && (
+            <button 
+              onClick={() => setView('ADMIN')}
+              className={`w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors ${currentView === 'ADMIN' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
+            >
+              <span>⚙️</span> Admin
+            </button>
+          )}
         </nav>
 
         <div className="mt-auto pt-6 border-t border-slate-800">
@@ -55,7 +59,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, 
             <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold">
               {user?.name?.[0] || 'U'}
             </div>
-            <div className="overflow-hidden">
+            <div className="overflow-hidden text-ellipsis">
               <p className="text-sm font-semibold truncate">{user?.name || 'Aviation Pro'}</p>
               <button onClick={() => setView('LANDING')} className="text-xs text-slate-400 hover:text-white">Sign out</button>
             </div>
@@ -94,10 +98,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, 
           <span className="text-xl">👤</span>
           <span className="text-[10px] font-medium">Profile</span>
         </button>
-        <button onClick={() => setView('ADMIN')} className={`flex flex-col items-center gap-1 ${currentView === 'ADMIN' ? 'text-blue-600' : 'text-slate-400'}`}>
-          <span className="text-xl">⚙️</span>
-          <span className="text-[10px] font-medium">Admin</span>
-        </button>
+        {isAdmin && (
+          <button onClick={() => setView('ADMIN')} className={`flex flex-col items-center gap-1 ${currentView === 'ADMIN' ? 'text-blue-600' : 'text-slate-400'}`}>
+            <span className="text-xl">⚙️</span>
+            <span className="text-[10px] font-medium">Admin</span>
+          </button>
+        )}
       </nav>
     </div>
   );

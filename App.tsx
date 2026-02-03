@@ -14,7 +14,6 @@ const App: React.FC = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [user, setUser] = useState<any>(null);
   const [currentTrade, setCurrentTrade] = useState<Trade | null>(null);
-  const [quizMode, setQuizMode] = useState<QuizMode>(QuizMode.PRACTICE);
   const [session, setSession] = useState<QuizSession | null>(null);
   const [stats, setStats] = useState<UserStats>({
     totalQuizzes: 0,
@@ -23,13 +22,17 @@ const App: React.FC = () => {
     history: []
   });
 
+  // --- AUTH FORM STATE ---
+  const [authMode, setAuthMode] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
+  const [authData, setAuthData] = useState({ name: '', email: '', password: '', adminSecret: '' });
+  const [authError, setAuthError] = useState('');
+
   // --- PERSISTENCE & ONLINE CHECK ---
   useEffect(() => {
     const handleStatusChange = () => setIsOnline(navigator.onLine);
     window.addEventListener('online', handleStatusChange);
     window.addEventListener('offline', handleStatusChange);
     
-    // Check saved session
     const savedUser = localStorage.getItem('ncaa_user_data');
     if (savedUser) {
       try {
@@ -103,11 +106,7 @@ const App: React.FC = () => {
       return acc + (session.userAnswers[q.id] === q.correctAnswer ? 1 : 0);
     }, 0);
 
-    const quizResult = { 
-      trade: session.trade, 
-      score, 
-      total: session.questions.length 
-    };
+    const quizResult = { trade: session.trade, score, total: session.questions.length };
 
     if (user) {
       try {
@@ -119,36 +118,13 @@ const App: React.FC = () => {
           localStorage.setItem('ncaa_user_data', JSON.stringify(updatedUser));
         }
       } catch (e) {
-        console.warn("Stats sync failed, keeping local state", e);
+        console.warn("Stats sync failed", e);
       }
-    } else {
-      setStats(prev => ({
-        ...prev,
-        totalQuizzes: prev.totalQuizzes + 1,
-        history: [{ ...quizResult, date: new Date().toISOString() } as any, ...prev.history]
-      }));
     }
 
     setSession({ ...session, endTime: Date.now() });
     setView('RESULTS');
   };
-
-  const handleAddQuestion = async (q: Omit<Question, 'id'>) => {
-    try {
-      const savedQ = await apiService.saveQuestion(q);
-      setQuestions(prev => [...prev, savedQ]);
-      return savedQ;
-    } catch (err) {
-      const newQ: Question = { ...q, id: `q-${Date.now()}` };
-      setQuestions(prev => [...prev, newQ]);
-      return newQ;
-    }
-  };
-
-  // --- AUTH ---
-  const [authMode, setAuthMode] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
-  const [authData, setAuthData] = useState({ name: '', email: '', password: '' });
-  const [authError, setAuthError] = useState('');
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -208,13 +184,6 @@ const App: React.FC = () => {
           </button>
         </div>
       </div>
-
-      <div className="mt-24 z-10 flex gap-16 items-end opacity-60">
-        <div className="flex flex-col items-center group cursor-help"><span className="text-4xl group-hover:scale-125 transition-transform duration-300">✈️</span><p className="text-[10px] mt-3 uppercase tracking-[0.3em] font-black text-slate-500 group-hover:text-white">Strategic</p></div>
-        <div className="flex flex-col items-center group cursor-help"><span className="text-5xl group-hover:scale-125 transition-transform duration-300 -mb-2">🛰️</span><p className="text-[10px] mt-3 uppercase tracking-[0.3em] font-black text-slate-500 group-hover:text-white">Comms</p></div>
-        <div className="flex flex-col items-center group cursor-help"><span className="text-4xl group-hover:scale-125 transition-transform duration-300">⚙️</span><p className="text-[10px] mt-3 uppercase tracking-[0.3em] font-black text-slate-500 group-hover:text-white">Maintenance</p></div>
-      </div>
-      <div className="absolute bottom-8 left-8 text-[10px] font-mono text-slate-600 uppercase tracking-widest">SECURE NODE: 77.23.10.04 // NCAA_SYS_AUTH</div>
     </div>
   );
 
@@ -230,25 +199,31 @@ const App: React.FC = () => {
 
         <form onSubmit={handleAuth} className="space-y-5">
           {authMode === 'REGISTER' && (
-            <div>
-              <label className="block text-xs font-black text-slate-400 mb-2 uppercase tracking-widest">Full Name</label>
-              <input type="text" required value={authData.name} onChange={e => setAuthData({...authData, name: e.target.value})} className="w-full bg-slate-800/50 p-4 rounded-xl border border-slate-700 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="John Doe" />
-            </div>
+            <>
+              <div>
+                <label className="block text-xs font-black text-slate-400 mb-2 uppercase tracking-widest">Full Name</label>
+                <input type="text" required value={authData.name} onChange={e => setAuthData({...authData, name: e.target.value})} className="w-full bg-slate-800/50 p-4 rounded-xl border border-slate-700 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Captain Maverick" />
+              </div>
+              <div>
+                <label className="block text-xs font-black text-yellow-400/80 mb-2 uppercase tracking-widest">Security Clearance Key (For Admin Only)</label>
+                <input type="password" value={authData.adminSecret} onChange={e => setAuthData({...authData, adminSecret: e.target.value})} className="w-full bg-slate-800/50 p-4 rounded-xl border border-yellow-500/30 text-white focus:ring-2 focus:ring-yellow-500 outline-none transition-all placeholder:text-slate-600" placeholder="Enter Secret To Enable Admin Tools" />
+              </div>
+            </>
           )}
           <div>
             <label className="block text-xs font-black text-slate-400 mb-2 uppercase tracking-widest">Aviation ID (Email)</label>
-            <input type="email" required value={authData.email} onChange={e => setAuthData({...authData, email: e.target.value})} placeholder="name@airline.com" className="w-full bg-slate-800/50 p-4 rounded-xl border border-slate-700 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-slate-600" />
+            <input type="email" required value={authData.email} onChange={e => setAuthData({...authData, email: e.target.value})} placeholder="name@airline.com" className="w-full bg-slate-800/50 p-4 rounded-xl border border-slate-700 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
           </div>
           <div>
             <label className="block text-xs font-black text-slate-400 mb-2 uppercase tracking-widest">Security Pass</label>
             <input type="password" required value={authData.password} onChange={e => setAuthData({...authData, password: e.target.value})} placeholder="••••••••" className="w-full bg-slate-800/50 p-4 rounded-xl border border-slate-700 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
           </div>
-          <button type="submit" className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black uppercase tracking-widest transition-all mt-6 shadow-lg shadow-blue-600/20">
-            {authMode === 'LOGIN' ? 'Authorize Access' : 'Register Asset'}
+          <button type="submit" className="w-full py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black uppercase tracking-widest transition-all mt-4 shadow-lg shadow-blue-600/20">
+            {authMode === 'LOGIN' ? 'Authorize Access' : 'Initialize Asset'}
           </button>
         </form>
         <button onClick={() => setAuthMode(authMode === 'LOGIN' ? 'REGISTER' : 'LOGIN')} className="w-full text-center mt-6 text-xs text-slate-500 hover:text-white transition-colors">
-          {authMode === 'LOGIN' ? "Don't have an ID? Register Now" : "Already registered? Sign In"}
+          {authMode === 'LOGIN' ? "Need a clearance? Start Enrollment" : "Already registered? Login to Cockpit"}
         </button>
       </div>
     </div>
@@ -263,7 +238,7 @@ const App: React.FC = () => {
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status: {isOnline ? 'Operational' : 'Standalone'}</span>
           </div>
           <h2 className="text-4xl font-black text-slate-900 leading-none uppercase">Commander {user?.name?.split(' ')[1] || user?.name || 'Asset'}</h2>
-          <p className="text-slate-500 mt-2 font-medium">Operational Readiness: {stats.averageScore}%</p>
+          <p className="text-slate-500 mt-2 font-medium">Readiness: {stats.averageScore}%</p>
         </div>
         <div className="bg-white p-2 rounded-xl border flex gap-4">
            <div className="px-4 py-2 bg-blue-50 rounded-lg text-center"><p className="text-[10px] font-black text-blue-400 uppercase">Flight Hours</p><p className="text-xl font-bold text-blue-900">{stats.totalQuizzes * 2}</p></div>
@@ -283,7 +258,7 @@ const App: React.FC = () => {
         </div>
         <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-4 text-4xl opacity-5 group-hover:scale-150 transition-transform">🎯</div>
-          <p className="text-xs font-black text-slate-400 uppercase tracking-wider mb-3">Active Missions</p>
+          <p className="text-xs font-black text-slate-400 uppercase tracking-wider mb-3">Missions</p>
           <div className="flex items-end gap-2"><span className="text-5xl font-black text-slate-900 tracking-tighter">{stats.totalQuizzes}</span><span className="text-blue-500 font-black text-xs mb-1.5">LOGGED</span></div>
         </div>
       </div>
@@ -308,9 +283,9 @@ const App: React.FC = () => {
           <div className="z-10 relative">
             <div className="inline-flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full text-[10px] font-black text-yellow-400 uppercase tracking-widest mb-4"><span className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span> Critical Mission</div>
             <h3 className="font-black text-3xl mb-3 leading-tight uppercase">Emergency Briefing</h3>
-            <p className="text-slate-400 mb-8 max-w-sm font-medium leading-relaxed">Simulated blitz. Random trade, maximum difficulty, no instruments.</p>
+            <p className="text-slate-400 mb-8 max-w-sm font-medium leading-relaxed">Simulated blitz assessment. Random trade, maximum difficulty.</p>
           </div>
-          <div className="z-10 relative"><button onClick={() => { startQuiz(Trade.SAFETY_HUMAN_FACTORS, QuizMode.TIMED); }} className="w-full sm:w-auto px-10 py-4 bg-white text-slate-950 font-black rounded-xl uppercase tracking-widest transition-all hover:bg-yellow-400 hover:scale-105 active:scale-95 shadow-xl shadow-white/5">Scramble Now</button></div>
+          <div className="z-10 relative"><button onClick={() => { startQuiz(Trade.SAFETY_HUMAN_FACTORS, QuizMode.TIMED); }} className="w-full sm:w-auto px-10 py-4 bg-white text-slate-950 font-black rounded-xl uppercase tracking-widest transition-all hover:bg-yellow-400 hover:scale-105 shadow-xl">Scramble Now</button></div>
         </section>
       </div>
     </div>
@@ -327,49 +302,33 @@ const App: React.FC = () => {
       <div className="max-w-4xl mx-auto space-y-8 pb-32">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button onClick={() => { if(confirm("Abort mission? Progress will be lost.")) setView('DASHBOARD'); }} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-[10px] font-black text-slate-900 uppercase tracking-widest transition-all">✕ Abort</button>
-            <div className="h-4 w-[1px] bg-slate-200"></div>
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Trade: <span className="text-blue-600">{session.trade}</span></span>
+            <button onClick={() => { if(confirm("Abort mission?")) setView('DASHBOARD'); }} className="px-4 py-2 bg-slate-100 rounded-xl text-[10px] font-black text-slate-900 uppercase tracking-widest">✕ Abort</button>
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sector: <span className="text-blue-600">{session.trade}</span></span>
           </div>
-          {session.mode === QuizMode.TIMED && (<div className="flex items-center gap-3 px-6 py-3 bg-red-50 border border-red-100 rounded-2xl"><span className="animate-pulse">🔴</span><span className="font-black text-red-600 font-mono text-xl tracking-tighter">LIVE FEED</span></div>)}
         </div>
         <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-1 shadow-inner"><div className="h-full bg-blue-600 rounded-full transition-all duration-700 ease-out" style={{ width: `${progress}%` }}></div></div>
         
         <div className="bg-white p-8 md:p-16 rounded-[2.5rem] shadow-2xl border border-slate-100 relative">
           <div className="absolute -top-4 -left-4 w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg">{session.currentQuestionIndex + 1}</div>
-          <div className="mb-12"><p className="text-[10px] font-black text-blue-400 mb-4 uppercase tracking-[0.3em]">Module Assessment Question</p><h2 className="text-2xl md:text-3xl font-black leading-tight text-slate-900">{q.text}</h2></div>
+          <h2 className="text-2xl md:text-3xl font-black leading-tight text-slate-900 mb-10">{q.text}</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {q.options.map(opt => {
               const isCorrect = opt.id === q.correctAnswer;
               const isSelected = userChoice === opt.id;
               
-              let optionStyles = "border-slate-100 hover:border-blue-200 bg-white hover:shadow-md";
-              let badgeStyles = "border-slate-200 text-slate-400 group-hover:border-blue-400 group-hover:text-blue-600";
-
+              let styles = "border-slate-100 bg-white hover:border-blue-300";
               if (session.mode === QuizMode.PRACTICE && isAnswered) {
-                if (isCorrect) {
-                  optionStyles = "border-green-500 bg-green-50 shadow-md scale-[1.02] z-10";
-                  badgeStyles = "bg-green-600 border-green-600 text-white";
-                } else if (isSelected) {
-                  optionStyles = "border-red-500 bg-red-50 opacity-100";
-                  badgeStyles = "bg-red-600 border-red-600 text-white";
-                } else {
-                  optionStyles = "border-slate-100 opacity-40 grayscale";
-                }
+                if (isCorrect) styles = "border-green-500 bg-green-50 shadow-md scale-[1.02] z-10";
+                else if (isSelected) styles = "border-red-500 bg-red-50";
+                else styles = "opacity-40 grayscale";
               } else if (isSelected) {
-                optionStyles = "border-blue-600 bg-blue-50 shadow-inner";
-                badgeStyles = "bg-blue-600 border-blue-600 text-white rotate-[360deg]";
+                styles = "border-blue-600 bg-blue-50";
               }
 
               return (
-                <button 
-                  key={opt.id} 
-                  disabled={isAnswered}
-                  onClick={() => handleAnswer(q.id, opt.id)} 
-                  className={`w-full p-6 rounded-2xl border-2 text-left transition-all flex items-center gap-5 group relative overflow-hidden ${optionStyles}`}
-                >
-                  <div className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center font-black text-sm transition-all ${badgeStyles}`}>
+                <button key={opt.id} disabled={isAnswered} onClick={() => handleAnswer(q.id, opt.id)} className={`w-full p-6 rounded-2xl border-2 text-left transition-all flex items-center gap-5 group relative overflow-hidden ${styles}`}>
+                  <div className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center font-black text-sm ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-200 text-slate-400'}`}>
                     {session.mode === QuizMode.PRACTICE && isAnswered && isCorrect ? '✓' : opt.id}
                   </div>
                   <span className="font-bold text-slate-700 leading-tight flex-1">{opt.text}</span>
@@ -379,11 +338,11 @@ const App: React.FC = () => {
           </div>
           
           {session.mode === QuizMode.PRACTICE && isAnswered && (
-            <div className={`mt-12 p-8 rounded-3xl border-2 animate-in slide-in-from-top-4 duration-300 ${userChoice === q.correctAnswer ? 'bg-green-50 border-green-100 text-green-900' : 'bg-red-50 border-red-100 text-red-900'}`}>
+            <div className={`mt-12 p-8 rounded-3xl border-2 animate-in slide-in-from-top-4 duration-300 ${userChoice === q.correctAnswer ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100'}`}>
               <div className="flex items-start gap-5">
-                <span className="text-3xl filter drop-shadow-sm">{userChoice === q.correctAnswer ? '✅' : '❌'}</span>
+                <span className="text-3xl">{userChoice === q.correctAnswer ? '✅' : '❌'}</span>
                 <div>
-                  <p className="font-black uppercase tracking-tight text-lg mb-1">{userChoice === q.correctAnswer ? 'Verified' : 'System Error'}</p>
+                  <p className="font-black uppercase tracking-tight text-lg mb-1">{userChoice === q.correctAnswer ? 'Verified' : 'Technical Error'}</p>
                   <p className="text-sm font-medium leading-relaxed opacity-80">{q.explanation}</p>
                 </div>
               </div>
@@ -391,9 +350,8 @@ const App: React.FC = () => {
           )}
         </div>
         
-        <div className="flex justify-between items-center">
-          <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Question {session.currentQuestionIndex + 1} of {session.questions.length}</p>
-          <button onClick={nextQuestion} disabled={!isAnswered} className={`px-12 py-5 bg-slate-950 text-white rounded-2xl font-black uppercase tracking-widest shadow-2xl transition-all ${!isAnswered ? 'opacity-30 cursor-not-allowed' : 'hover:bg-blue-600 hover:scale-105 active:scale-95'}`}>
+        <div className="flex justify-end">
+          <button onClick={nextQuestion} disabled={!isAnswered} className={`px-12 py-5 bg-slate-950 text-white rounded-2xl font-black uppercase tracking-widest shadow-2xl transition-all ${!isAnswered ? 'opacity-30' : 'hover:bg-blue-600 active:scale-95'}`}>
             {session.currentQuestionIndex < session.questions.length - 1 ? 'Next Phase →' : 'Finalize Mission'}
           </button>
         </div>
@@ -405,8 +363,6 @@ const App: React.FC = () => {
     const [newQ, setNewQ] = useState({ trade: Trade.B1_ENGINEER, text: '', correctAnswer: 'A', explanation: '', difficulty: 'Medium' as 'Easy' | 'Medium' | 'Hard' });
     const [options, setOptions] = useState([{ id: 'A', text: '' }, { id: 'B', text: '' }, { id: 'C', text: '' }, { id: 'D', text: '' }]);
     const [analyzing, setAnalyzing] = useState(false);
-    
-    // --- Bulk Import State ---
     const [showBulk, setShowBulk] = useState(false);
     const [bulkText, setBulkText] = useState('');
     const [bulkTrade, setBulkTrade] = useState(Trade.B1_ENGINEER);
@@ -424,13 +380,13 @@ const App: React.FC = () => {
     };
 
     const handleBulkProcess = async () => {
-      if (!bulkText.trim()) return alert("Paste your document content first.");
+      if (!bulkText.trim()) return alert("Paste content first.");
       setIsParsing(true);
       try {
         const result = await geminiService.parseBulkQuestions(bulkText, bulkTrade);
         setParsedPreview(result);
       } catch (err) {
-        alert("AI could not parse this text. Try a smaller chunk.");
+        alert("AI could not parse this text.");
       } finally {
         setIsParsing(false);
       }
@@ -440,137 +396,81 @@ const App: React.FC = () => {
       if (!parsedPreview.length) return;
       setIsSyncing(true);
       setSyncProgress(0);
-      
-      const savedCount = [];
       for (let i = 0; i < parsedPreview.length; i++) {
         const q = parsedPreview[i];
-        const saved = await handleAddQuestion({
-          trade: bulkTrade,
-          text: q.text,
-          options: q.options,
-          correctAnswer: q.correctAnswer,
-          explanation: q.explanation,
-          difficulty: q.difficulty as any
-        });
-        savedCount.push(saved);
+        try {
+          await apiService.saveQuestion({
+            trade: bulkTrade,
+            text: q.text,
+            options: q.options,
+            correctAnswer: q.correctAnswer,
+            explanation: q.explanation,
+            difficulty: q.difficulty as any
+          });
+        } catch(e) { console.error("Sync error", e); }
         setSyncProgress(Math.round(((i + 1) / parsedPreview.length) * 100));
       }
-      
-      alert(`Mission Success: ${savedCount.length} modules synchronized.`);
+      alert(`Synchronized ${parsedPreview.length} modules.`);
       setParsedPreview([]);
       setBulkText('');
       setShowBulk(false);
       setIsSyncing(false);
+      // Refresh questions list
+      apiService.fetchQuestions().then(data => setQuestions(data));
     };
 
     return (
       <div className="space-y-10 pb-20">
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div><h2 className="text-4xl font-black text-slate-900 uppercase">System Override</h2><div className="flex items-center gap-2 mt-2"><span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span><p className="text-slate-500 font-black text-xs uppercase tracking-widest">Database Node: ONLINE // Cloud Indexed</p></div></div>
-          <div className="flex gap-4">
-            <button onClick={() => setShowBulk(!showBulk)} className={`px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl ${showBulk ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'}`}>
-              {showBulk ? '✕ Close Bulk Uplink' : '🚀 Launch Bulk Uplink'}
-            </button>
-          </div>
+        <header className="flex justify-between items-center">
+          <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Command Override</h2>
+          <button onClick={() => setShowBulk(!showBulk)} className={`px-8 py-4 rounded-xl font-black uppercase text-xs transition-all ${showBulk ? 'bg-red-600 text-white' : 'bg-blue-600 text-white'}`}>
+            {showBulk ? '✕ Close Bulk Uplink' : '🚀 Launch Bulk Uplink'}
+          </button>
         </header>
 
         {showBulk ? (
-          <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white animate-in zoom-in-95 duration-300 border border-blue-500/30 shadow-[0_0_50px_rgba(37,99,235,0.2)]">
-            <div className="flex justify-between items-start mb-10">
-              <div>
-                <h3 className="text-3xl font-black uppercase tracking-tighter text-blue-400">AI Tactical Bulk Uplink</h3>
-                <p className="text-slate-400 font-medium mt-1">Paste raw content from your docs below. AI will structure and index them.</p>
-              </div>
-              <div className="bg-blue-600/20 px-4 py-2 rounded-xl border border-blue-500/30">
-                 <p className="text-[10px] font-black uppercase text-blue-400">Target Trade</p>
-                 <select className="bg-transparent font-bold outline-none text-sm cursor-pointer" value={bulkTrade} onChange={(e) => setBulkTrade(e.target.value as Trade)}>
-                  {Object.values(Trade).map(t => <option key={t} value={t} className="text-slate-900">{t}</option>)}
-                </select>
-              </div>
+          <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white border border-blue-500/30">
+            <h3 className="text-2xl font-black uppercase text-blue-400 mb-6">AI Tactical Bulk Uplink</h3>
+            <textarea className="w-full h-64 bg-slate-950 rounded-2xl border-2 border-slate-800 p-6 font-mono text-sm outline-none focus:border-blue-500 mb-8" placeholder="Paste question text from your docs..." value={bulkText} onChange={(e) => setBulkText(e.target.value)} />
+            <div className="flex gap-4 mb-10">
+              <select className="bg-slate-800 p-4 rounded-xl font-bold outline-none border border-slate-700" value={bulkTrade} onChange={(e) => setBulkTrade(e.target.value as Trade)}>
+                {Object.values(Trade).map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+              <button onClick={handleBulkProcess} disabled={isParsing || !bulkText} className="px-10 py-5 bg-blue-600 rounded-xl font-black uppercase tracking-widest">{isParsing ? 'Processing...' : 'Analyze with AI'}</button>
             </div>
-
-            <textarea 
-              className="w-full h-64 bg-slate-950 rounded-2xl border-2 border-slate-800 p-6 font-mono text-sm focus:border-blue-500 outline-none transition-all placeholder:text-slate-700 mb-8"
-              placeholder="Paste text here... (AI will automatically extract Questions, Options, and Answers)"
-              value={bulkText}
-              onChange={(e) => setBulkText(e.target.value)}
-            />
-
-            <div className="flex gap-6 items-center">
-              <button onClick={handleBulkProcess} disabled={isParsing || !bulkText} className="px-10 py-5 bg-blue-600 hover:bg-blue-500 disabled:opacity-30 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-blue-600/20 flex items-center gap-3 transition-all">
-                {isParsing ? '🤖 Analyzing Mission Data...' : '🛠️ Process with AI'}
-              </button>
-              {parsedPreview.length > 0 && !isSyncing && (
-                <p className="text-green-400 font-black uppercase text-xs tracking-widest animate-pulse">
-                  ✔ Found {parsedPreview.length} Valid Modules
-                </p>
-              )}
-            </div>
-
             {parsedPreview.length > 0 && (
-              <div className="mt-12 space-y-4 max-h-96 overflow-y-auto pr-4 custom-scrollbar">
-                <h4 className="text-xs font-black uppercase text-slate-500 tracking-widest border-b border-slate-800 pb-2">Uplink Preview</h4>
-                {parsedPreview.map((p, i) => (
-                  <div key={i} className="bg-white/5 p-4 rounded-xl border border-white/5 flex gap-4">
-                    <span className="text-blue-500 font-black">{i+1}</span>
-                    <div className="flex-1">
-                      <p className="font-bold text-sm mb-2">{p.text}</p>
-                      <p className="text-[10px] text-slate-500 font-mono">Correct Index: {p.correctAnswer} // Complexity: {p.difficulty}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {parsedPreview.length > 0 && (
-              <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col items-center">
-                {isSyncing && (
-                  <div className="w-full mb-6">
-                    <div className="flex justify-between text-[10px] font-black uppercase text-blue-400 mb-2"><span>Synchronizing Mainframe</span><span>{syncProgress}%</span></div>
-                    <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-blue-500 transition-all duration-300" style={{ width: `${syncProgress}%` }}></div></div>
-                  </div>
-                )}
-                <button onClick={handleBatchSync} disabled={isSyncing} className="w-full py-6 bg-white text-slate-950 font-black rounded-2xl uppercase tracking-[0.3em] hover:bg-yellow-400 transition-all shadow-2xl disabled:opacity-50">
-                  {isSyncing ? 'TRANSMITTING...' : 'INITIATE BATCH SYNC'}
-                </button>
+              <div className="space-y-4">
+                <p className="text-green-400 font-black uppercase text-xs">Ready to Sync: {parsedPreview.length} Modules</p>
+                {isSyncing && <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden"><div className="h-full bg-blue-500" style={{ width: `${syncProgress}%` }}></div></div>}
+                <button onClick={handleBatchSync} disabled={isSyncing} className="w-full py-6 bg-white text-slate-900 font-black rounded-xl uppercase tracking-widest shadow-2xl">Initiate Batch Sync</button>
               </div>
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 animate-in slide-in-from-bottom-4 duration-500">
-            <section className="lg:col-span-2 bg-white rounded-[2.5rem] border border-slate-100 shadow-xl overflow-hidden">
-               <div className="p-8 border-b border-slate-50 bg-slate-50/50 flex justify-between items-center"><h3 className="font-black text-lg uppercase tracking-tight">Active Module Registry ({questions.length})</h3></div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <section className="lg:col-span-2 bg-white rounded-[2.5rem] border shadow-xl overflow-hidden">
+               <div className="p-8 border-b bg-slate-50 font-black uppercase tracking-tight">Active Registry</div>
                <div className="overflow-x-auto">
                  <table className="w-full text-left">
-                   <thead className="bg-slate-50 text-slate-400 uppercase text-[10px] font-black tracking-[0.2em]"><tr><th className="px-8 py-5">Objective</th><th className="px-8 py-5">Classification</th><th className="px-8 py-5 text-right">Ops</th></tr></thead>
-                   <tbody className="divide-y divide-slate-50">
-                     {questions.slice(0, 10).map(q => (
-                       <tr key={q.id} className="hover:bg-blue-50/30 transition-colors">
-                         <td className="px-8 py-6 max-w-xs truncate font-bold text-slate-800">{q.text}</td>
-                         <td className="px-8 py-6"><span className="px-3 py-1 bg-slate-100 rounded-lg text-[9px] font-black text-slate-500 uppercase tracking-widest">{q.trade}</span></td>
-                         <td className="px-8 py-6 text-right"><button onClick={async () => { if(confirm('Purge module?')) { try { await apiService.deleteQuestion(q.id); setQuestions(prev => prev.filter(item => item.id !== q.id)); } catch(e) { alert('Purge failed'); } } }} className="text-red-500 hover:text-red-700 font-black text-[10px] uppercase tracking-widest">Purge</button></td>
+                   <thead className="bg-slate-50 text-slate-400 text-[10px] font-black uppercase"><tr><th className="px-8 py-5">Question</th><th className="px-8 py-5">Trade</th><th className="px-8 py-5">Action</th></tr></thead>
+                   <tbody className="divide-y">
+                     {questions.slice(0, 15).map(q => (
+                       <tr key={q.id} className="hover:bg-slate-50">
+                         <td className="px-8 py-6 max-w-xs truncate font-bold text-sm">{q.text}</td>
+                         <td className="px-8 py-6 text-[10px] font-black uppercase text-blue-600">{q.trade}</td>
+                         <td className="px-8 py-6"><button onClick={() => { if(confirm("Purge?")) apiService.deleteQuestion(q.id).then(() => setQuestions(prev => prev.filter(i => i.id !== q.id))); }} className="text-red-500 font-black text-xs uppercase">Purge</button></td>
                        </tr>
                      ))}
                    </tbody>
                  </table>
-                 {questions.length > 10 && <div className="p-6 text-center text-xs font-bold text-slate-400 uppercase">Showing first 10 modules</div>}
                </div>
             </section>
-            <section className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl p-10">
-              <h3 className="font-black text-2xl mb-8 uppercase tracking-tight text-slate-900">Module Uplink</h3>
+            <section className="bg-white rounded-[2.5rem] border shadow-xl p-10">
+              <h3 className="font-black text-2xl mb-8 uppercase text-slate-900">Module Uplink</h3>
               <div className="space-y-6">
-                <div><label className="block text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Classification</label><select className="w-full p-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all font-bold outline-none" value={newQ.trade} onChange={(e) => setNewQ({ ...newQ, trade: e.target.value as Trade })}>{Object.values(Trade).map(t => <option key={t} value={t}>{t}</option>)}</select></div>
-                <div><label className="block text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Objective Script</label><textarea rows={2} className="w-full p-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all font-bold outline-none text-sm" placeholder="Define technical challenge..." value={newQ.text} onChange={(e) => setNewQ({ ...newQ, text: e.target.value })} /></div>
-                <div className="space-y-3">
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Parameter Options</label>
-                  {options.map((opt, idx) => (<div key={opt.id} className="flex items-center gap-3"><span className="font-black text-slate-300 w-4">{opt.id}</span><input placeholder={`Result ${opt.id}`} className="flex-1 p-3 rounded-xl bg-slate-50 border border-transparent focus:border-blue-400 outline-none text-xs font-bold" value={opt.text} onChange={(e) => { const newOpts = [...options]; newOpts[idx].text = e.target.value; setOptions(newOpts); }} /></div>))}
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                   <div><label className="block text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Key Index</label><select className="w-full p-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-blue-600 font-bold outline-none" value={newQ.correctAnswer} onChange={(e) => setNewQ({ ...newQ, correctAnswer: e.target.value })}><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option></select></div>
-                   <div><label className="block text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Level</label><select className="w-full p-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-blue-600 font-bold outline-none" value={newQ.difficulty} onChange={(e) => setNewQ({ ...newQ, difficulty: e.target.value as any })}><option value="Easy">Routine</option><option value="Medium">Advanced</option><option value="Hard">Critical</option></select></div>
-                </div>
-                <div><label className="flex items-center justify-between text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest">Technical Analysis <button onClick={handleAIEnhance} disabled={analyzing} className="text-blue-600 font-black hover:scale-110 transition-transform">{analyzing ? '⌛' : 'AI ✨'}</button></label><textarea rows={3} className="w-full p-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-blue-600 focus:bg-white transition-all font-bold outline-none text-xs" placeholder="Technical justification..." value={newQ.explanation} onChange={(e) => setNewQ({ ...newQ, explanation: e.target.value })} /></div>
-                <button onClick={async () => { await handleAddQuestion({ ...newQ, options: options }); alert("Module Uploaded Successfully."); setNewQ({ ...newQ, text: '', explanation: '' }); setOptions(options.map(o => ({...o, text: ''}))); }} className="w-full py-5 bg-blue-600 text-white font-black rounded-2xl mt-6 uppercase tracking-[0.2em] shadow-xl shadow-blue-600/30 hover:bg-blue-500 hover:scale-[1.02] active:scale-95 transition-all">Sync to Mainframe</button>
+                <div><label className="block text-[10px] font-black text-slate-400 uppercase mb-2">Trade</label><select className="w-full p-4 rounded-xl bg-slate-50 border outline-none font-bold" value={newQ.trade} onChange={(e) => setNewQ({ ...newQ, trade: e.target.value as Trade })}>{Object.values(Trade).map(t => <option key={t} value={t}>{t}</option>)}</select></div>
+                <div><label className="block text-[10px] font-black text-slate-400 uppercase mb-2">Question</label><textarea className="w-full p-4 rounded-xl bg-slate-50 border outline-none font-bold text-sm" rows={3} value={newQ.text} onChange={(e) => setNewQ({ ...newQ, text: e.target.value })} /></div>
+                <button onClick={async () => { await apiService.saveQuestion({...newQ, options}); alert("Uploaded."); }} className="w-full py-5 bg-slate-950 text-white font-black rounded-xl uppercase tracking-widest">Manual Sync</button>
               </div>
             </section>
           </div>
@@ -580,29 +480,14 @@ const App: React.FC = () => {
   };
 
   const ProfileView = () => (
-    <div className="space-y-10 pb-20 max-w-4xl mx-auto">
-      <header className="text-center">
-        <div className="relative inline-block"><div className="w-32 h-32 rounded-full border-4 border-blue-600 p-1 mb-4 mx-auto"><div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-4xl">👨‍✈️</div></div><div className="absolute bottom-4 right-0 bg-green-500 w-6 h-6 rounded-full border-4 border-white"></div></div>
-        <h2 className="text-4xl font-black text-slate-900 uppercase">Commander {user?.name || 'Asset'}</h2>
-        <p className="text-slate-500 font-bold uppercase tracking-widest text-xs mt-2">NCAA Strategic Asset // Clearance Level 9</p>
-      </header>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <section className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-xl">
-          <h3 className="font-black text-xl uppercase mb-6 flex items-center gap-2"><span className="text-blue-600">📊</span> Performance HUD</h3>
-          <div className="space-y-6">
-            <div><div className="flex justify-between text-xs font-black uppercase mb-2"><span>Technical Accuracy</span><span>{stats.averageScore}%</span></div><div className="w-full h-2 bg-slate-100 rounded-full"><div className="h-full bg-blue-600 rounded-full transition-all duration-1000" style={{ width: `${stats.averageScore}%` }}></div></div></div>
-            <div><div className="flex justify-between text-xs font-black uppercase mb-2"><span>Mission Completion</span><span>{Math.min(stats.totalQuizzes * 10, 100)}%</span></div><div className="w-full h-2 bg-slate-100 rounded-full"><div className="h-full bg-indigo-600 rounded-full" style={{ width: `${Math.min(stats.totalQuizzes * 10, 100)}%` }}></div></div></div>
-          </div>
-        </section>
-        <section className="bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden flex flex-col justify-center">
-          <h3 className="font-black text-xl uppercase mb-6">Operations Log</h3>
-          <div className="text-center">
-            <p className="text-xs font-black text-blue-400 uppercase tracking-[0.2em] mb-2">Total Score Efficiency</p>
-            <p className="text-6xl font-black text-white">{stats.averageScore}%</p>
-          </div>
-          <button onClick={() => { apiService.clearAuth(); setUser(null); setView('LANDING'); }} className="mt-10 px-8 py-4 bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white rounded-xl font-black uppercase text-xs transition-all border border-red-500/30">Purge Credentials (Sign Out)</button>
-        </section>
+    <div className="max-w-2xl mx-auto py-10 text-center space-y-10">
+      <div className="w-32 h-32 rounded-full border-4 border-blue-600 mx-auto p-1"><div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-4xl">👨‍✈️</div></div>
+      <h2 className="text-4xl font-black text-slate-900 uppercase">Commander {user?.name || 'Asset'}</h2>
+      <div className="grid grid-cols-2 gap-6">
+        <div className="bg-white p-8 rounded-3xl border shadow-sm"><p className="text-[10px] font-black text-blue-400 uppercase mb-2">Efficiency</p><p className="text-4xl font-black">{stats.averageScore}%</p></div>
+        <div className="bg-white p-8 rounded-3xl border shadow-sm"><p className="text-[10px] font-black text-indigo-400 uppercase mb-2">Role</p><p className="text-xl font-black uppercase text-indigo-600">{user?.role}</p></div>
       </div>
+      <button onClick={() => { apiService.clearAuth(); setUser(null); setView('LANDING'); }} className="px-10 py-4 bg-red-600 text-white rounded-xl font-black uppercase text-xs tracking-widest">Purge Credentials</button>
     </div>
   );
 
@@ -614,7 +499,7 @@ const App: React.FC = () => {
       {view === 'DASHBOARD' && <DashboardView />}
       {view === 'TRADE_SELECT' && (
         <div className="space-y-10 pb-20">
-          <header><h2 className="text-4xl font-black text-slate-900 uppercase tracking-tight">Deployment Sector</h2><p className="text-slate-500 mt-1">Select target specialization to initialize testing.</p></header>
+          <header><h2 className="text-4xl font-black text-slate-900 uppercase">Deployment Sector</h2></header>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {TRADE_INFO.map(info => (
               <div key={info.trade} onClick={() => setCurrentTrade(info.trade)} className={`cursor-pointer p-8 rounded-[2rem] border-2 transition-all group relative overflow-hidden ${currentTrade === info.trade ? 'border-blue-600 bg-blue-50/50 shadow-xl scale-[1.02]' : 'border-slate-100 bg-white hover:border-slate-300 shadow-sm'}`}>
@@ -627,10 +512,10 @@ const App: React.FC = () => {
           {currentTrade && (
             <div className="fixed inset-x-0 bottom-0 p-8 bg-white/90 backdrop-blur-xl border-t z-50 animate-in slide-in-from-bottom-full duration-500">
               <div className="max-w-4xl mx-auto flex items-center justify-between">
-                <div><h3 className="text-xl font-black text-slate-900 uppercase">{currentTrade}</h3><p className="text-slate-500 text-xs uppercase font-black">Mode Selection Required</p></div>
+                <div><h3 className="text-xl font-black text-slate-900 uppercase">{currentTrade}</h3><p className="text-slate-500 text-xs uppercase font-black tracking-widest">Mode Selection Required</p></div>
                 <div className="flex gap-4">
-                  <button onClick={() => startQuiz(currentTrade, QuizMode.PRACTICE)} className="px-8 py-4 bg-slate-100 text-slate-950 font-black rounded-xl uppercase tracking-widest border border-slate-200 hover:bg-slate-200 transition-all">Practice</button>
-                  <button onClick={() => startQuiz(currentTrade, QuizMode.TIMED)} className="px-8 py-4 bg-blue-600 text-white font-black rounded-xl uppercase tracking-widest shadow-lg hover:bg-blue-500 transition-all">Final Exam</button>
+                  <button onClick={() => startQuiz(currentTrade, QuizMode.PRACTICE)} className="px-8 py-4 bg-slate-100 font-black rounded-xl uppercase tracking-widest border hover:bg-slate-200 transition-all">Practice</button>
+                  <button onClick={() => startQuiz(currentTrade, QuizMode.TIMED)} className="px-8 py-4 bg-blue-600 text-white font-black rounded-xl uppercase shadow-lg hover:bg-blue-500 transition-all">Final Exam</button>
                 </div>
               </div>
             </div>
@@ -639,25 +524,24 @@ const App: React.FC = () => {
       )}
       {view === 'QUIZ' && <QuizView />}
       {view === 'RESULTS' && (
-        <div className="max-w-2xl mx-auto py-20 text-center space-y-8 animate-in zoom-in duration-500">
-          <div className="bg-white p-16 rounded-[3rem] shadow-2xl border border-slate-100 text-center relative overflow-hidden">
+        <div className="max-w-2xl mx-auto py-20 text-center space-y-8">
+          <div className="bg-white p-16 rounded-[3rem] shadow-2xl border border-slate-100 relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
-            <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center text-5xl mx-auto mb-10 shadow-inner">🏆</div>
             <h2 className="text-5xl font-black text-slate-900 mb-4 uppercase tracking-tighter">Debriefing Ready</h2>
-            <p className="text-slate-500 font-medium mb-12 text-xl">Operation performance logged to the flight records.</p>
+            <p className="text-slate-500 font-medium mb-12 text-xl">Mission logged to flight record.</p>
             <div className="flex gap-4">
-              <button onClick={() => setView('DASHBOARD')} className="flex-1 px-8 py-6 bg-slate-100 text-slate-900 rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-slate-200 transition-all">Dashboard</button>
+              <button onClick={() => setView('DASHBOARD')} className="flex-1 px-8 py-6 bg-slate-100 text-slate-900 rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-slate-200 transition-all">Return To Base</button>
               <button onClick={() => setView('REVIEW')} className="flex-1 px-8 py-6 bg-slate-950 text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-2xl hover:bg-blue-600 transition-all">Review Log</button>
             </div>
-           </div>
+          </div>
         </div>
       )}
-      {view === 'ADMIN' && <AdminView />}
+      {view === 'ADMIN' && user?.role === 'admin' && <AdminView />}
       {view === 'PROFILE' && <ProfileView />}
       {view === 'REVIEW' && (
         <div className="space-y-10 pb-20 max-w-4xl mx-auto">
           <header className="flex justify-between items-center">
-            <div><h2 className="text-4xl font-black text-slate-900 uppercase">Mission Review</h2><p className="text-slate-500 font-bold text-xs mt-1 uppercase tracking-widest">Status: DEBRIEFING</p></div>
+            <h2 className="text-4xl font-black text-slate-900 uppercase">Mission Review</h2>
             <button onClick={() => setView('DASHBOARD')} className="px-6 py-3 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest">Close Log</button>
           </header>
           <div className="space-y-6">
@@ -665,12 +549,12 @@ const App: React.FC = () => {
               const userAns = session.userAnswers[q.id];
               const isCorrect = userAns === q.correctAnswer;
               return (
-                <div key={q.id} className={`p-8 rounded-[2rem] border-2 bg-white transition-all ${isCorrect ? 'border-green-100' : 'border-red-100'}`}>
+                <div key={q.id} className={`p-8 rounded-[2rem] border-2 bg-white ${isCorrect ? 'border-green-100' : 'border-red-100'}`}>
                   <div className="flex items-start gap-4 mb-6"><div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg ${isCorrect ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>{idx + 1}</div><h4 className="text-xl font-bold leading-tight text-slate-800 pt-1">{q.text}</h4></div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
                     {q.options.map(opt => (<div key={opt.id} className={`p-4 rounded-xl border text-sm font-bold flex items-center gap-3 ${opt.id === q.correctAnswer ? 'bg-green-50 border-green-200 text-green-900' : opt.id === userAns ? 'bg-red-50 border-red-200 text-red-900' : 'bg-slate-50 border-transparent text-slate-400 opacity-50'}`}><span className="w-6 h-6 rounded flex items-center justify-center border border-current">{opt.id}</span> {opt.text}</div>))}
                   </div>
-                  <div className={`p-6 rounded-2xl bg-slate-900 text-white relative overflow-hidden`}><p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Technical Analysis</p><p className="text-sm font-medium leading-relaxed opacity-90">{q.explanation}</p></div>
+                  <div className={`p-6 rounded-2xl bg-slate-900 text-white`}><p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Technical Analysis</p><p className="text-sm font-medium leading-relaxed opacity-90">{q.explanation}</p></div>
                 </div>
               );
             })}
@@ -679,16 +563,16 @@ const App: React.FC = () => {
       )}
       {view === 'FLEET_SPECS' && (
         <div className="p-10 space-y-10">
-          <h2 className="text-4xl font-black uppercase mb-10">Fleet Intelligence</h2>
+          <h2 className="text-4xl font-black uppercase mb-10 tracking-tight">Fleet Intelligence</h2>
           <div className="bg-slate-900 text-white p-10 rounded-[3rem] border border-blue-500/30">
-            <h3 className="text-2xl font-black text-blue-400 mb-4">E-4B Nightwatch Strategic Brief</h3>
-            <p className="text-slate-400 leading-relaxed max-w-2xl mb-8">The E-4B is a highly survivable command platform designed to coordinate global operations under EMP conditions. Technical mastery of this airframe is required for all Level 9 assets.</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-center"><p className="text-[10px] font-black text-slate-400 uppercase mb-1">Max Speed</p><p className="text-xl font-bold">Mach 0.92</p></div>
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-center"><p className="text-[10px] font-black text-slate-400 uppercase mb-1">Service Ceiling</p><p className="text-xl font-bold">45,000 ft</p></div>
+            <h3 className="text-2xl font-black text-blue-400 mb-4 uppercase">E-4B Nightwatch Strategic Brief</h3>
+            <p className="text-slate-400 leading-relaxed max-w-2xl mb-8">The E-4B serves as the National Airborne Operations Center (NAOC). It is engineered for extreme survivability and global command capability.</p>
+            <div className="grid grid-cols-2 gap-6 max-w-sm">
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-center"><p className="text-[10px] font-black text-slate-400 uppercase">Speed</p><p className="text-xl font-bold">Mach 0.92</p></div>
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 text-center"><p className="text-[10px] font-black text-slate-400 uppercase">Ceiling</p><p className="text-xl font-bold">45,000 ft</p></div>
             </div>
           </div>
-          <button onClick={() => setView('LANDING')} className="px-8 py-4 bg-slate-950 text-white rounded-xl font-black uppercase text-xs">← Return to Perimeter</button>
+          <button onClick={() => setView('LANDING')} className="px-8 py-4 bg-slate-950 text-white rounded-xl font-black uppercase text-xs tracking-widest">← Return to Perimeter</button>
         </div>
       )}
     </Layout>

@@ -33,14 +33,18 @@ const authUser = async (req, res, next) => {
 // @desc    Register a new user
 // @route   POST /api/users
 const registerUser = async (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, adminSecret } = req.body;
   try {
     const userExists = await User.findOne({ email });
     if (userExists) {
       res.status(400);
       throw new Error('User already exists');
     }
-    const user = await User.create({ name, email, password });
+
+    // Determine role based on admin secret
+    const role = (adminSecret && adminSecret === process.env.ADMIN_SECRET) ? 'admin' : 'user';
+
+    const user = await User.create({ name, email, password, role });
     if (user) {
       res.status(201).json({
         _id: user._id,
