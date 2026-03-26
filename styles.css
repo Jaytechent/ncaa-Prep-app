@@ -13,6 +13,13 @@ body {
   min-height: 100vh;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   HELICOPTER LANDING SCENE  — Two Nigerian Augusta 109s
+   Right heli: enters from far right, lands upper-right
+   Left heli:  enters from far left (mirrored), lands upper-left
+   Both are large, vivid, unobtrusive to main UI content
+═══════════════════════════════════════════════════════════════ */
+
 .agusta-landing-wrapper {
   position: absolute;
   inset: 0;
@@ -21,15 +28,13 @@ body {
   overflow: hidden;
 }
 
+/* ── SHARED HELI BASE ─────────────────────────────────────────── */
 .agusta-helicopter {
   position: absolute;
-  right: min(8vw, 56px);
-  top: 11%;
-  width: clamp(220px, 32vw, 430px);
-  opacity: 0;
-  transform-style: preserve-3d;
-  filter: drop-shadow(0 18px 28px rgba(2, 6, 23, 0.6));
-  animation: agusta-approach 5.5s ease-out forwards;
+  top: 6%;
+  filter:
+    drop-shadow(0 24px 40px rgba(2, 6, 23, 0.7))
+    drop-shadow(0 4px 12px rgba(0, 180, 80, 0.25));
 }
 
 .agusta-helicopter svg {
@@ -37,72 +42,125 @@ body {
   height: auto;
 }
 
-.agusta-rotor {
-  transform-origin: 50% 50%;
-  animation: rotor-spin 0.12s linear infinite;
-}
-
-.agusta-tail-rotor {
-  transform-origin: 50% 50%;
-  animation: tail-spin 0.1s linear infinite;
-}
-
-.agusta-shadow {
-  position: absolute;
-  right: min(8vw, 56px);
-  bottom: 13%;
-  width: clamp(150px, 25vw, 300px);
-  height: 30px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(15, 23, 42, 0.45) 0%, rgba(15, 23, 42, 0) 70%);
+/* ── RIGHT HELICOPTER ────────────────────────────────────────── */
+.agusta-helicopter-right {
+  right: clamp(16px, 4vw, 48px);
+  width: clamp(280px, 36vw, 520px);
   opacity: 0;
-  animation: shadow-settle 5.5s ease-out forwards;
+  animation: heli-land-right 6s cubic-bezier(0.22, 0.61, 0.36, 1) 0.3s forwards;
 }
 
-@keyframes agusta-approach {
+/* ── LEFT HELICOPTER (mirrored) ──────────────────────────────── */
+.agusta-helicopter-left {
+  left: clamp(16px, 4vw, 48px);
+  width: clamp(240px, 30vw, 440px);
+  opacity: 0;
+  transform: scaleX(-1); /* mirror so nose faces inward */
+  animation: heli-land-left 6s cubic-bezier(0.22, 0.61, 0.36, 1) 1.4s forwards;
+  top: 18%;
+}
+
+/* ── ROTOR ANIMATIONS ─────────────────────────────────────────── */
+.rotor-main {
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: rotor-spin 0.10s linear infinite;
+}
+
+.rotor-tail {
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: tail-rotor-spin 0.08s linear infinite;
+}
+
+/* ── GROUND SHADOWS ───────────────────────────────────────────── */
+.agusta-shadow-right {
+  position: absolute;
+  right: clamp(20px, 5vw, 60px);
+  top: 22%;
+  width: clamp(180px, 24vw, 340px);
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0,200,80,0.18) 0%, rgba(15,23,42,0.35) 40%, transparent 72%);
+  opacity: 0;
+  animation: shadow-in-right 6s ease-out 0.3s forwards;
+}
+
+.agusta-shadow-left {
+  position: absolute;
+  left: clamp(20px, 5vw, 60px);
+  top: 34%;
+  width: clamp(140px, 20vw, 280px);
+  height: 18px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0,200,80,0.18) 0%, rgba(15,23,42,0.35) 40%, transparent 72%);
+  opacity: 0;
+  animation: shadow-in-left 6s ease-out 1.4s forwards;
+}
+
+/* ── KEYFRAMES ─────────────────────────────────────────────────── */
+@keyframes heli-land-right {
   0% {
     opacity: 0;
-    transform: translate3d(260px, -180px, 200px) scale(0.38) rotateX(26deg) rotateY(-20deg) rotateZ(14deg);
+    transform: translate3d(420px, -260px, 0) scale(0.3) rotateZ(18deg);
   }
-  50% {
-    opacity: 0.95;
+  15% {
+    opacity: 1;
   }
-  70% {
-    transform: translate3d(40px, -6px, 24px) scale(0.93) rotateX(10deg) rotateY(-8deg) rotateZ(2deg);
+  55% {
+    transform: translate3d(60px, -20px, 0) scale(0.88) rotateZ(4deg);
   }
-  84% {
-    transform: translate3d(12px, 8px, 0) scale(1) rotateX(2deg) rotateY(-2deg) rotateZ(0deg);
+  78% {
+    transform: translate3d(14px, 10px, 0) scale(1.0) rotateZ(0.5deg);
+  }
+  90% {
+    transform: translate3d(4px, 18px, 0) scale(1.0) rotateZ(-0.5deg);
   }
   100% {
     opacity: 1;
-    transform: translate3d(0, 14px, 0) scale(1) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+    transform: translate3d(0, 14px, 0) scale(1.0) rotateZ(0deg);
   }
 }
 
-@keyframes shadow-settle {
+@keyframes heli-land-left {
   0% {
     opacity: 0;
-    transform: scale(0.2) translateY(0);
+    transform: scaleX(-1) translate3d(380px, -220px, 0) scale(0.28) rotateZ(-16deg);
   }
-  70% {
-    opacity: 0.36;
-    transform: scale(0.8) translateY(0);
+  15% {
+    opacity: 1;
+  }
+  55% {
+    transform: scaleX(-1) translate3d(50px, -14px, 0) scale(0.84) rotateZ(-3deg);
+  }
+  78% {
+    transform: scaleX(-1) translate3d(10px, 8px, 0) scale(0.96) rotateZ(-0.5deg);
+  }
+  90% {
+    transform: scaleX(-1) translate3d(2px, 16px, 0) scale(0.96) rotateZ(0.4deg);
   }
   100% {
-    opacity: 0.3;
-    transform: scale(1) translateY(0);
+    opacity: 1;
+    transform: scaleX(-1) translate3d(0, 12px, 0) scale(0.96) rotateZ(0deg);
   }
+}
+
+@keyframes shadow-in-right {
+  0%   { opacity: 0; transform: scale(0.1); }
+  60%  { opacity: 0.45; transform: scale(0.85); }
+  100% { opacity: 0.35; transform: scale(1); }
+}
+
+@keyframes shadow-in-left {
+  0%   { opacity: 0; transform: scale(0.1); }
+  60%  { opacity: 0.38; transform: scale(0.85); }
+  100% { opacity: 0.28; transform: scale(1); }
 }
 
 @keyframes rotor-spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
-@keyframes tail-spin {
-  to {
-    transform: rotate(-360deg);
-  }
+@keyframes tail-rotor-spin {
+  to { transform: rotate(-360deg); }
 }
-

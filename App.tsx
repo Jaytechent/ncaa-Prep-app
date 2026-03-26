@@ -20,56 +20,304 @@ const OfflineBadge: React.FC<{ isOnline: boolean }> = ({ isOnline }) => (
 );
 
 // ─── LANDING ────────────────────────────────────────────────────────────────
-interface LandingViewProps {
-  onEnter: () => void;
-  onFleet: () => void;
-}
-const LandingView: React.FC<LandingViewProps> = ({ onEnter, onFleet }) => (
+// ═══════════════════════════════════════════════════════════════════════════
+// REPLACE ONLY the LandingView component in your App.tsx with this.
+// Find the existing LandingView function and replace it entirely.
+// Everything else in App.tsx stays the same.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── NIGERIAN AUGUSTA 109 SVG ────────────────────────────────────────────────
+// Shared SVG helicopter (Nigerian livery: green body, white stripe, gold trim)
+const AgustaW109Nigerian = () => (
+  <svg viewBox="0 0 620 240" xmlns="http://www.w3.org/2000/svg" role="presentation" aria-hidden="true">
+    <defs>
+      {/* Main fuselage gradient - deep Nigerian green */}
+      <linearGradient id="body-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#1a7a1a" />
+        <stop offset="40%" stopColor="#006400" />
+        <stop offset="100%" stopColor="#003d00" />
+      </linearGradient>
+      {/* Lighter green for top panels */}
+      <linearGradient id="top-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#2a9a2a" />
+        <stop offset="100%" stopColor="#006400" />
+      </linearGradient>
+      {/* Cockpit glass */}
+      <linearGradient id="glass-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#7dd3fc" stopOpacity="0.95" />
+        <stop offset="50%" stopColor="#0ea5e9" stopOpacity="0.85" />
+        <stop offset="100%" stopColor="#0369a1" stopOpacity="0.9" />
+      </linearGradient>
+      {/* Gold accent */}
+      <linearGradient id="gold-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#fbbf24" />
+        <stop offset="100%" stopColor="#d97706" />
+      </linearGradient>
+      {/* Engine pod */}
+      <linearGradient id="engine-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#374151" />
+        <stop offset="50%" stopColor="#1f2937" />
+        <stop offset="100%" stopColor="#111827" />
+      </linearGradient>
+      {/* Tail boom */}
+      <linearGradient id="tail-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#006400" />
+        <stop offset="70%" stopColor="#004d00" />
+        <stop offset="100%" stopColor="#002800" />
+      </linearGradient>
+      {/* Skid shadow */}
+      <linearGradient id="skid-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stopColor="#9ca3af" />
+        <stop offset="100%" stopColor="#4b5563" />
+      </linearGradient>
+    </defs>
+
+    {/* ── TAIL BOOM ──────────────────────────────────────────── */}
+    <path
+      d="M390 102 L560 88 Q585 87 595 95 Q598 100 592 108 Q586 114 560 114 L390 118 Z"
+      fill="url(#tail-grad)"
+      stroke="#002800" strokeWidth="1"
+    />
+    {/* Tail boom detail stripe - white */}
+    <path
+      d="M420 105 L555 93 L558 98 L422 110 Z"
+      fill="white" opacity="0.3"
+    />
+
+    {/* ── HORIZONTAL STABILIZER ─────────────────────────────── */}
+    <path d="M540 88 L575 68 L585 70 L565 90 Z" fill="#005000" stroke="#002800" strokeWidth="1" />
+    <path d="M540 114 L575 134 L585 132 L565 112 Z" fill="#005000" stroke="#002800" strokeWidth="1" />
+
+    {/* ── TAIL ROTOR MOUNT ──────────────────────────────────── */}
+    <ellipse cx="590" cy="101" rx="9" ry="9" fill="#1f2937" stroke="#374151" strokeWidth="1.5" />
+    {/* Tail rotor blades */}
+    <g className="rotor-tail">
+      <rect x="576" y="99" width="28" height="4" rx="2" fill="#d1d5db" />
+      <rect x="588" y="87" width="4" height="28" rx="2" fill="#d1d5db" />
+    </g>
+
+    {/* ── MAIN FUSELAGE BODY ─────────────────────────────────── */}
+    {/* Lower belly */}
+    <path
+      d="M130 148 L360 148 Q400 148 410 138 L390 118 L390 102 L410 82 Q400 72 360 72 L130 72 Q80 72 55 90 Q30 108 30 110 Q30 120 55 130 Q80 148 130 148 Z"
+      fill="url(#body-grad)"
+      stroke="#002800" strokeWidth="1.5"
+    />
+
+    {/* ── NIGERIAN FLAG STRIPE (green-white-green on fuselage) ── */}
+    {/* White center stripe */}
+    <path
+      d="M150 72 L350 72 L350 148 L150 148 Z"
+      fill="white" opacity="0.12"
+    />
+    {/* Green left stripe */}
+    <path
+      d="M130 74 L195 74 L195 146 L130 146 Q90 143 65 128 L65 92 Q90 77 130 74 Z"
+      fill="#006400" opacity="0.9"
+    />
+    {/* White band */}
+    <path
+      d="M195 74 L240 74 L240 146 L195 146 Z"
+      fill="white" opacity="0.85"
+    />
+    {/* Green center */}
+    <path
+      d="M240 74 L310 74 L310 146 L240 146 Z"
+      fill="#006400" opacity="0.9"
+    />
+    {/* White band 2 */}
+    <path
+      d="M310 74 L355 74 L355 146 L310 146 Z"
+      fill="white" opacity="0.85"
+    />
+    {/* Green right */}
+    <path
+      d="M355 74 L390 80 L390 120 L355 146 Z"
+      fill="#006400" opacity="0.9"
+    />
+
+    {/* ── TOP FUSELAGE PANELS ────────────────────────────────── */}
+    <path
+      d="M140 72 L370 72 L380 62 L380 58 L140 58 Q100 58 75 68 L75 72 Z"
+      fill="url(#top-grad)"
+      stroke="#002800" strokeWidth="1"
+    />
+
+    {/* ── GOLD ACCENT STRIPE (top of fuselage) ─────────────── */}
+    <path
+      d="M120 58 L380 58 L382 54 L118 54 Z"
+      fill="url(#gold-grad)"
+      opacity="0.9"
+    />
+
+    {/* ── ENGINE PODS (twin turboshaft on top) ──────────────── */}
+    <rect x="180" y="40" width="90" height="22" rx="8" fill="url(#engine-grad)" stroke="#374151" strokeWidth="1.5" />
+    <rect x="280" y="40" width="90" height="22" rx="8" fill="url(#engine-grad)" stroke="#374151" strokeWidth="1.5" />
+    {/* Engine exhausts */}
+    <ellipse cx="268" cy="46" rx="7" ry="5" fill="#1f2937" stroke="#6b7280" strokeWidth="1" />
+    <ellipse cx="368" cy="46" rx="7" ry="5" fill="#1f2937" stroke="#6b7280" strokeWidth="1" />
+    {/* Exhaust glow */}
+    <ellipse cx="268" cy="46" rx="4" ry="3" fill="#f97316" opacity="0.6" />
+    <ellipse cx="368" cy="46" rx="4" ry="3" fill="#f97316" opacity="0.6" />
+    {/* Engine intake grill detail */}
+    <line x1="195" y1="44" x2="195" y2="58" stroke="#6b7280" strokeWidth="1" />
+    <line x1="205" y1="44" x2="205" y2="58" stroke="#6b7280" strokeWidth="1" />
+    <line x1="215" y1="44" x2="215" y2="58" stroke="#6b7280" strokeWidth="1" />
+    <line x1="295" y1="44" x2="295" y2="58" stroke="#6b7280" strokeWidth="1" />
+    <line x1="305" y1="44" x2="305" y2="58" stroke="#6b7280" strokeWidth="1" />
+    <line x1="315" y1="44" x2="315" y2="58" stroke="#6b7280" strokeWidth="1" />
+
+    {/* ── MAIN ROTOR MAST ────────────────────────────────────── */}
+    <rect x="270" y="22" width="12" height="22" rx="3" fill="#374151" stroke="#6b7280" strokeWidth="1" />
+    <ellipse cx="276" cy="22" rx="10" ry="5" fill="#4b5563" />
+
+    {/* ── MAIN ROTOR BLADES ─────────────────────────────────── */}
+    <g className="rotor-main" style={{ transformOrigin: '276px 20px' }}>
+      {/* Blade 1 - right */}
+      <path d="M276 20 L560 10 L558 30 L276 20 Z" fill="#1f2937" stroke="#374151" strokeWidth="0.5" />
+      {/* Blade 2 - left */}
+      <path d="M276 20 L-8 10 L-6 30 L276 20 Z" fill="#1f2937" stroke="#374151" strokeWidth="0.5" />
+      {/* Blade 3 - forward */}
+      <path d="M276 20 L278 -270 L298 -268 L276 20 Z" fill="#374151" stroke="#4b5563" strokeWidth="0.5" />
+      {/* Hub */}
+      <circle cx="276" cy="20" r="10" fill="#6b7280" stroke="#9ca3af" strokeWidth="1.5" />
+      <circle cx="276" cy="20" r="5" fill="#374151" />
+    </g>
+
+    {/* ── NOSE / COCKPIT ────────────────────────────────────── */}
+    {/* Nose cone - gold */}
+    <path
+      d="M130 72 Q80 72 55 90 Q30 108 30 110 Q30 120 55 130 Q80 148 130 148 L140 148 L140 72 Z"
+      fill="url(#gold-grad)"
+      stroke="#d97706" strokeWidth="1.5"
+    />
+    {/* Nose tip */}
+    <path
+      d="M55 90 Q30 108 30 110 Q30 120 55 130 L65 128 Q50 115 50 110 Q50 105 65 92 Z"
+      fill="#d97706"
+    />
+
+    {/* Cockpit windows - large and blue */}
+    {/* Left pilot window */}
+    <path
+      d="M80 80 Q68 82 64 95 Q62 103 64 115 Q68 125 80 126 L128 124 L128 78 Z"
+      fill="url(#glass-grad)"
+      stroke="#0284c7" strokeWidth="1.5"
+      opacity="0.92"
+    />
+    {/* Right pilot window */}
+    <path
+      d="M128 78 L140 78 L140 122 L128 122 Z"
+      fill="url(#glass-grad)"
+      stroke="#0284c7" strokeWidth="1"
+      opacity="0.88"
+    />
+    {/* Window frame */}
+    <path
+      d="M80 80 Q68 82 64 95 Q62 103 64 115 Q68 125 80 126 L128 124 L128 78 Z"
+      fill="none"
+      stroke="#fed7aa" strokeWidth="2"
+    />
+    {/* Glare highlight */}
+    <path
+      d="M72 85 Q66 88 66 96 L72 95 Z"
+      fill="white" opacity="0.4"
+    />
+
+    {/* Cabin windows (passenger) */}
+    <rect x="158" y="84" width="38" height="30" rx="6" fill="url(#glass-grad)" stroke="#0284c7" strokeWidth="1.5" opacity="0.85" />
+    <rect x="210" y="84" width="38" height="30" rx="6" fill="url(#glass-grad)" stroke="#0284c7" strokeWidth="1.5" opacity="0.85" />
+    <rect x="262" y="84" width="38" height="30" rx="6" fill="url(#glass-grad)" stroke="#0284c7" strokeWidth="1.5" opacity="0.85" />
+    {/* Cabin window glare */}
+    <rect x="160" y="86" width="12" height="8" rx="3" fill="white" opacity="0.3" />
+    <rect x="212" y="86" width="12" height="8" rx="3" fill="white" opacity="0.3" />
+    <rect x="264" y="86" width="12" height="8" rx="3" fill="white" opacity="0.3" />
+
+    {/* ── REGISTRATION TEXT ──────────────────────────────────── */}
+    <text
+      x="220" y="142"
+      fontFamily="monospace" fontWeight="bold" fontSize="11"
+      fill="#1a1a1a" opacity="0.9"
+      textAnchor="middle"
+    >5N-NCA</text>
+
+    {/* ── BELLY DETAIL ──────────────────────────────────────── */}
+    <path d="M160 148 L350 148 L352 154 L158 154 Z" fill="#003d00" opacity="0.6" />
+
+    {/* ── LANDING SKIDS ─────────────────────────────────────── */}
+    {/* Front skid strut */}
+    <line x1="148" y1="148" x2="138" y2="185" stroke="url(#skid-grad)" strokeWidth="5" strokeLinecap="round" />
+    {/* Rear skid strut */}
+    <line x1="340" y1="148" x2="350" y2="185" stroke="url(#skid-grad)" strokeWidth="5" strokeLinecap="round" />
+    {/* Front cross strut */}
+    <line x1="110" y1="175" x2="175" y2="175" stroke="#6b7280" strokeWidth="3.5" strokeLinecap="round" />
+    {/* Rear cross strut */}
+    <line x1="320" y1="185" x2="385" y2="185" stroke="#6b7280" strokeWidth="3.5" strokeLinecap="round" />
+    {/* Front skid rail */}
+    <path d="M85 185 Q100 190 175 185 Q190 182 195 178" fill="none" stroke="url(#skid-grad)" strokeWidth="5" strokeLinecap="round" />
+    {/* Rear skid rail */}
+    <path d="M300 180 Q340 188 410 182 Q420 178 425 174" fill="none" stroke="url(#skid-grad)" strokeWidth="5" strokeLinecap="round" />
+
+    {/* ── RUNNING LIGHTS ────────────────────────────────────── */}
+    {/* Nav light red - left */}
+    <circle cx="40" cy="110" r="5" fill="#ef4444" opacity="0.9" />
+    <circle cx="40" cy="110" r="8" fill="#ef4444" opacity="0.2" />
+    {/* Anti-collision beacon - top */}
+    <circle cx="276" cy="15" r="4" fill="#fbbf24" opacity="0.95" />
+    <circle cx="276" cy="15" r="7" fill="#fbbf24" opacity="0.2" />
+    {/* Tail position light */}
+    <circle cx="596" cy="101" r="3" fill="#60a5fa" opacity="0.9" />
+
+    {/* ── NIGERIAN COAT OF ARMS (simplified eagle emblem) ───── */}
+    <g transform="translate(172, 95)" opacity="0.7">
+      <circle cx="8" cy="8" r="7" fill="#fbbf24" />
+      <text x="8" y="12" textAnchor="middle" fontSize="9" fill="#006400" fontWeight="bold">✦</text>
+    </g>
+
+    {/* ── DOOR PANEL LINES ──────────────────────────────────── */}
+    <line x1="152" y1="75" x2="152" y2="146" stroke="#002800" strokeWidth="1" opacity="0.5" />
+    <line x1="202" y1="75" x2="202" y2="146" stroke="#002800" strokeWidth="0.8" opacity="0.4" />
+    <line x1="302" y1="75" x2="302" y2="146" stroke="#002800" strokeWidth="0.8" opacity="0.4" />
+
+    {/* ── PITOT TUBE ────────────────────────────────────────── */}
+    <line x1="30" y1="108" x2="8" y2="106" stroke="#9ca3af" strokeWidth="2" />
+    <circle cx="8" cy="106" r="2" fill="#9ca3af" />
+  </svg>
+);
+
+// ─── LANDING VIEW ────────────────────────────────────────────────────────────
+const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }> = ({ onEnter, onFleet }) => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-[#020617] text-white p-6 relative overflow-hidden">
+
+    {/* Background atmosphere */}
     <div className="absolute inset-0 pointer-events-none opacity-20">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-blue-500/30 rounded-full" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-blue-400/20 rounded-full" />
     </div>
     <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-[140px] opacity-20 -mr-48 -mt-48" />
+    <div className="absolute top-0 left-0 w-72 h-72 bg-green-600 rounded-full blur-[120px] opacity-10 -ml-36 -mt-36" />
+
+    {/* ── HELICOPTER SCENE ── */}
     <div className="agusta-landing-wrapper" aria-hidden="true">
-      <div className="agusta-helicopter">
-        <svg viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg" role="presentation">
-          <defs>
-            <linearGradient id="agustaBody" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#f8fafc" />
-              <stop offset="55%" stopColor="#cbd5e1" />
-              <stop offset="100%" stopColor="#64748b" />
-            </linearGradient>
-            <linearGradient id="agustaGlass" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#38bdf8" />
-              <stop offset="100%" stopColor="#1d4ed8" />
-            </linearGradient>
-          </defs>
-          <ellipse cx="294" cy="226" rx="150" ry="20" fill="rgba(15, 23, 42, 0.2)" />
-          <g className="agusta-rotor">
-            <rect x="176" y="48" width="228" height="8" rx="4" fill="#0f172a" />
-            <rect x="278" y="8" width="12" height="84" rx="6" fill="#334155" />
-          </g>
-          <g>
-            <path d="M106 145 L200 96 H372 Q460 98 512 138 L530 155 L520 184 H102 Q70 182 68 164 Q66 149 106 145 Z" fill="url(#agustaBody)" />
-            <path d="M192 102 L370 104 Q432 106 486 136 L372 138 L205 136 Z" fill="url(#agustaGlass)" opacity="0.88" />
-            <path d="M76 148 L120 146 L130 178 H84 Q65 178 60 166 Q58 156 76 148 Z" fill="#94a3b8" />
-            <path d="M502 143 L540 138 L548 148 L532 158 L498 160 Z" fill="#64748b" />
-            <rect x="230" y="184" width="198" height="14" rx="6" fill="#0f172a" />
-            <rect x="174" y="186" width="60" height="10" rx="5" fill="#0f172a" />
-            <rect x="426" y="187" width="58" height="10" rx="5" fill="#0f172a" />
-            <rect x="159" y="198" width="346" height="8" rx="4" fill="#1e293b" />
-            <rect x="124" y="132" width="16" height="34" rx="4" fill="#475569" />
-            <rect x="222" y="142" width="58" height="9" rx="4" fill="#0f172a" opacity="0.38" />
-          </g>
-          <g className="agusta-tail-rotor">
-            <rect x="518" y="124" width="30" height="4" rx="2" fill="#cbd5e1" />
-            <rect x="531" y="111" width="4" height="30" rx="2" fill="#cbd5e1" />
-          </g>
-        </svg>
+
+      {/* Shadow right */}
+      <div className="agusta-shadow-right" />
+      {/* Shadow left */}
+      <div className="agusta-shadow-left" />
+
+      {/* RIGHT helicopter — lands from top-right */}
+      <div className="agusta-helicopter agusta-helicopter-right">
+        <AgustaW109Nigerian />
       </div>
-      <div className="agusta-shadow" />
+
+      {/* LEFT helicopter — lands from top-left, mirrored */}
+      <div className="agusta-helicopter agusta-helicopter-left">
+        <AgustaW109Nigerian />
+      </div>
+
     </div>
+
+    {/* ── MAIN CONTENT ── */}
     <div className="z-10 text-center max-w-3xl">
       <div className="inline-flex items-center gap-2 bg-blue-900/40 border border-blue-500/30 px-4 py-2 rounded-full text-blue-400 text-xs font-bold mb-8 uppercase tracking-widest">
         <span className="w-2 h-2 bg-blue-500 rounded-full animate-ping" />
