@@ -286,68 +286,161 @@ const AgustaW109Nigerian = () => (
 );
 
 // ─── LANDING VIEW ────────────────────────────────────────────────────────────
-const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }> = ({ onEnter, onFleet }) => (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-[#020617] text-white p-6 relative overflow-hidden">
+const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }> = ({ onEnter, onFleet }) => {
+  const missionTracks = [
+    { title: 'Pilot Command Track', details: 'Instrument strategy, emergency pattern control, and checkride simulation labs.' },
+    { title: 'Aircraft Engineering Track', details: 'Deep diagnostics, maintenance workflow drills, and systems troubleshooting packs.' },
+    { title: 'Air Traffic Control Track', details: 'Phraseology precision, traffic sequencing scenarios, and tower-to-approach transitions.' },
+  ];
 
-    {/* Background atmosphere */}
-    <div className="absolute inset-0 pointer-events-none opacity-20">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] border border-blue-500/30 rounded-full" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-blue-400/20 rounded-full" />
+  const metrics = [
+    { label: 'Scenario Library', value: '1,200+' },
+    { label: 'Active Cadets', value: '8.4K' },
+    { label: 'Avg Readiness Gain', value: '+32%' },
+    { label: 'Mission Uptime', value: '99.9%' },
+  ];
+
+  const operations = [
+    {
+      title: 'Adaptive Mission Engine',
+      copy: 'Each quiz path adjusts in real time based on your response confidence and weak areas.',
+    },
+    {
+      title: 'Command Analytics',
+      copy: 'Live heatmaps show where your crew loses points so revision time stays tactical.',
+    },
+    {
+      title: 'Offline-First Field Mode',
+      copy: 'Continue training with local persistence, then sync back once internet is restored.',
+    },
+  ];
+
+  return (
+    <div className="bg-[#020617] text-white relative overflow-x-hidden">
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="battle-grid" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(14,116,255,0.26),transparent_40%),radial-gradient(circle_at_80%_20%,rgba(16,185,129,0.2),transparent_36%),radial-gradient(circle_at_50%_85%,rgba(251,191,36,0.16),transparent_45%)]" />
+        <div className="battle-pulse battle-pulse-a" />
+        <div className="battle-pulse battle-pulse-b" />
+      </div>
+
+      <section className="min-h-screen relative z-10 px-6 pt-28 pb-20 flex items-center">
+        <div className="max-w-6xl mx-auto w-full grid lg:grid-cols-2 gap-14 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-blue-400/40 bg-blue-500/10 text-xs font-black uppercase tracking-[0.2em] text-blue-300 mb-6">
+              <span className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+              Mission Command Portal
+            </div>
+            <h1 className="text-5xl md:text-7xl font-black leading-[0.92] tracking-tight mb-6">
+              Train Like
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-emerald-300">
+                Flight Operations
+              </span>
+            </h1>
+            <p className="text-slate-300 text-lg leading-relaxed max-w-xl mb-9">
+              You already upgraded the landing visuals. Now the rest of the homepage feels like a complete
+              operations command site: long-form sections, premium pacing, and subtle animated atmosphere.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={onEnter}
+                className="px-8 py-4 rounded-xl font-black tracking-wide bg-blue-600 hover:bg-blue-500 transition-all shadow-[0_0_40px_rgba(37,99,235,0.4)]"
+              >
+                ENTER COCKPIT
+              </button>
+              <button
+                onClick={onFleet}
+                className="px-8 py-4 rounded-xl font-black tracking-wide border border-slate-500/60 bg-slate-900/50 hover:bg-slate-800/80 transition-all"
+              >
+                REVIEW FLEET SPECS
+              </button>
+            </div>
+          </div>
+
+          <div className="relative">
+            <div className="agusta-landing-wrapper" aria-hidden="true">
+              <div className="agusta-shadow-right" />
+              <div className="agusta-shadow-left" />
+              <div className="agusta-helicopter agusta-helicopter-right">
+                <AgustaW109Nigerian />
+              </div>
+              <div className="agusta-helicopter agusta-helicopter-left">
+                <AgustaW109Nigerian />
+              </div>
+            </div>
+            <div className="relative min-h-[440px] rounded-3xl border border-white/10 bg-slate-950/40 backdrop-blur-sm overflow-hidden" />
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 px-6 py-20 border-y border-white/10 bg-slate-950/50">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
+          {metrics.map(metric => (
+            <div key={metric.label} className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+              <p className="text-xs uppercase tracking-widest text-slate-400 font-bold">{metric.label}</p>
+              <p className="text-3xl md:text-4xl font-black mt-3 text-white">{metric.value}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="relative z-10 px-6 py-24">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-black mb-4">Mission Tracks</h2>
+          <p className="text-slate-300 max-w-2xl mb-10">Structured pathways designed to mirror real aviation pressure and cadence.</p>
+          <div className="grid md:grid-cols-3 gap-6">
+            {missionTracks.map(track => (
+              <article key={track.title} className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/10 to-white/0 p-7 hover:-translate-y-1 transition-transform">
+                <div className="w-10 h-10 rounded-lg bg-blue-500/20 border border-blue-300/30 mb-4" />
+                <h3 className="text-xl font-black mb-3">{track.title}</h3>
+                <p className="text-slate-300 leading-relaxed">{track.details}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 px-6 py-24 bg-slate-900/50 border-y border-white/10">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-start">
+          <div>
+            <h2 className="text-4xl md:text-5xl font-black mb-4">Operations Intelligence</h2>
+            <p className="text-slate-300 leading-relaxed max-w-xl">
+              Similar to high-end product homepages, this layer gives scannable detail with depth while staying
+              lightweight and preserving your app flow.
+            </p>
+          </div>
+          <div className="space-y-4">
+            {operations.map((item, idx) => (
+              <div key={item.title} className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+                <p className="text-xs uppercase tracking-[0.2em] text-blue-300 font-black mb-2">0{idx + 1}</p>
+                <h3 className="text-2xl font-black mb-2">{item.title}</h3>
+                <p className="text-slate-300">{item.copy}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 px-6 pt-24 pb-32">
+        <div className="max-w-6xl mx-auto rounded-3xl border border-white/10 bg-gradient-to-r from-blue-900/50 via-slate-900/70 to-emerald-900/40 p-10 md:p-14 text-center">
+          <p className="text-xs uppercase tracking-[0.25em] text-blue-200 font-black mb-4">Final Call</p>
+          <h2 className="text-4xl md:text-5xl font-black mb-5">Ready to deploy your certification sprint?</h2>
+          <p className="text-slate-200 max-w-2xl mx-auto mb-8">
+            Start in cockpit mode or inspect your aircraft intelligence stack before takeoff.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <button onClick={onEnter} className="px-8 py-4 rounded-xl font-black bg-white text-slate-900 hover:bg-blue-100 transition-all">
+              START TRAINING
+            </button>
+            <button onClick={onFleet} className="px-8 py-4 rounded-xl font-black border border-white/40 hover:bg-white/10 transition-all">
+              OPEN FLEET PANEL
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
-    <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-[140px] opacity-20 -mr-48 -mt-48" />
-    <div className="absolute top-0 left-0 w-72 h-72 bg-green-600 rounded-full blur-[120px] opacity-10 -ml-36 -mt-36" />
-
-    {/* ── HELICOPTER SCENE ── */}
-    <div className="agusta-landing-wrapper" aria-hidden="true">
-
-      {/* Shadow right */}
-      <div className="agusta-shadow-right" />
-      {/* Shadow left */}
-      <div className="agusta-shadow-left" />
-
-      {/* RIGHT helicopter — lands from top-right */}
-      <div className="agusta-helicopter agusta-helicopter-right">
-        <AgustaW109Nigerian />
-      </div>
-
-      {/* LEFT helicopter — lands from top-left, mirrored */}
-      <div className="agusta-helicopter agusta-helicopter-left">
-        <AgustaW109Nigerian />
-      </div>
-
-    </div>
-
-    {/* ── MAIN CONTENT ── */}
-    <div className="z-10 text-center max-w-3xl">
-      <div className="inline-flex items-center gap-2 bg-blue-900/40 border border-blue-500/30 px-4 py-2 rounded-full text-blue-400 text-xs font-bold mb-8 uppercase tracking-widest">
-        <span className="w-2 h-2 bg-blue-500 rounded-full animate-ping" />
-        System Operational
-      </div>
-      <h1 className="text-6xl md:text-8xl font-black mb-6 tracking-tighter leading-[0.9] text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-500">
-        NCAA COMMAND <br />
-        <span className="text-yellow-400">PRO PLATFORM</span>
-      </h1>
-      <p className="text-xl text-slate-400 mb-12 font-medium max-w-xl mx-auto leading-relaxed">
-        The ultimate certification platform for aviation professionals. Strategic readiness for
-        Pilots, Engineers, and ATC.
-      </p>
-      <div className="flex flex-col sm:flex-row gap-5 justify-center">
-        <button
-          onClick={onEnter}
-          className="px-10 py-5 bg-blue-600 hover:bg-blue-500 rounded-xl font-black text-xl transition-all shadow-[0_0_40px_rgba(37,99,235,0.4)]"
-        >
-          ENTER COCKPIT
-        </button>
-        <button
-          onClick={onFleet}
-          className="px-10 py-5 bg-slate-900/80 hover:bg-slate-800 rounded-xl font-black text-xl transition-all border border-slate-700 backdrop-blur-sm"
-        >
-          FLEET SPECS
-        </button>
-      </div>
-    </div>
-  </div>
-);
+  );
+};
 
 // ─── AUTH ───────────────────────────────────────────────────────────────────
 interface AuthViewProps {

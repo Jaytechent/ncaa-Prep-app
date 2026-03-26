@@ -164,3 +164,47 @@ body {
 @keyframes tail-rotor-spin {
   to { transform: rotate(-360deg); }
 }
+/* Landing atmospheric motion */
+.battle-grid {
+  position: absolute;
+  inset: -20% -10%;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 60px 60px;
+  transform: perspective(560px) rotateX(56deg) scale(1.2);
+  transform-origin: top;
+  opacity: 0.25;
+  animation: grid-drift 28s linear infinite;
+}
+
+.battle-pulse {
+  position: absolute;
+  width: clamp(380px, 46vw, 780px);
+  height: clamp(380px, 46vw, 780px);
+  border-radius: 999px;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  filter: blur(0.2px);
+  animation: pulse-float 12s ease-in-out infinite;
+}
+
+.battle-pulse-a {
+  top: -140px;
+  left: -120px;
+}
+
+.battle-pulse-b {
+  right: -180px;
+  bottom: -220px;
+  animation-delay: -6s;
+}
+
+@keyframes grid-drift {
+  from { transform: perspective(560px) rotateX(56deg) scale(1.2) translateY(0); }
+  to { transform: perspective(560px) rotateX(56deg) scale(1.2) translateY(60px); }
+}
+
+@keyframes pulse-float {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.98); opacity: 0.16; }
+  50% { transform: translate3d(0, -20px, 0) scale(1.02); opacity: 0.28; }
+}
