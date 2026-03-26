@@ -288,9 +288,9 @@ const AgustaW109Nigerian = () => (
 // ─── LANDING VIEW ────────────────────────────────────────────────────────────
 const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }> = ({ onEnter, onFleet }) => {
   const missionTracks = [
-    { title: 'Pilot Command Track', details: 'Instrument strategy, emergency pattern control, and checkride simulation labs.' },
-    { title: 'Aircraft Engineering Track', details: 'Deep diagnostics, maintenance workflow drills, and systems troubleshooting packs.' },
-    { title: 'Air Traffic Control Track', details: 'Phraseology precision, traffic sequencing scenarios, and tower-to-approach transitions.' },
+    { title: 'Pilot Ground School', details: 'IFR procedures, abnormal checklist drills, and recurrent checkride prep.' },
+    { title: 'Maintenance Certification', details: 'AMM-driven troubleshooting flows, MEL decisions, and release-to-service scenarios.' },
+    { title: 'Operations Control', details: 'Dispatch release planning, ATC phraseology, and weather-risk decision exercises.' },
   ];
 
   const metrics = [
@@ -338,21 +338,21 @@ const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }> = ({ o
               </span>
             </h1>
             <p className="text-slate-300 text-lg leading-relaxed max-w-xl mb-9">
-              You already upgraded the landing visuals. Now the rest of the homepage feels like a complete
-              operations command site: long-form sections, premium pacing, and subtle animated atmosphere.
+              NCAA Prep is an aviation exam-readiness platform for pilots, engineers, dispatchers, cabin crew, and ATC trainees.
+              Build knowledge with role-specific question banks, timed assessments, and post-flight debrief analytics.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={onEnter}
                 className="px-8 py-4 rounded-xl font-black tracking-wide bg-blue-600 hover:bg-blue-500 transition-all shadow-[0_0_40px_rgba(37,99,235,0.4)]"
               >
-                ENTER COCKPIT
+                OPEN COURSE CATALOG
               </button>
               <button
                 onClick={onFleet}
                 className="px-8 py-4 rounded-xl font-black tracking-wide border border-slate-500/60 bg-slate-900/50 hover:bg-slate-800/80 transition-all"
               >
-                REVIEW FLEET SPECS
+                MISSION OVERVIEW
               </button>
             </div>
           </div>
@@ -403,10 +403,10 @@ const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }> = ({ o
       <section className="relative z-10 px-6 py-24 bg-slate-900/50 border-y border-white/10">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8 items-start">
           <div>
-            <h2 className="text-4xl md:text-5xl font-black mb-4">Operations Intelligence</h2>
+            <h2 className="text-4xl md:text-5xl font-black mb-4">Training Operations</h2>
             <p className="text-slate-300 leading-relaxed max-w-xl">
-              Similar to high-end product homepages, this layer gives scannable detail with depth while staying
-              lightweight and preserving your app flow.
+              Every module is built for NCAA-style aviation certification prep with realistic operational pressure
+              and role-specific performance feedback.
             </p>
           </div>
           <div className="space-y-4">
@@ -424,16 +424,16 @@ const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }> = ({ o
       <section className="relative z-10 px-6 pt-24 pb-32">
         <div className="max-w-6xl mx-auto rounded-3xl border border-white/10 bg-gradient-to-r from-blue-900/50 via-slate-900/70 to-emerald-900/40 p-10 md:p-14 text-center">
           <p className="text-xs uppercase tracking-[0.25em] text-blue-200 font-black mb-4">Final Call</p>
-          <h2 className="text-4xl md:text-5xl font-black mb-5">Ready to deploy your certification sprint?</h2>
+          <h2 className="text-4xl md:text-5xl font-black mb-5">Ready for your next certification sortie?</h2>
           <p className="text-slate-200 max-w-2xl mx-auto mb-8">
-            Start in cockpit mode or inspect your aircraft intelligence stack before takeoff.
+            Browse course sectors now, then sign in to launch graded practice or timed check assessments.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <button onClick={onEnter} className="px-8 py-4 rounded-xl font-black bg-white text-slate-900 hover:bg-blue-100 transition-all">
-              START TRAINING
+              VIEW COURSES
             </button>
             <button onClick={onFleet} className="px-8 py-4 rounded-xl font-black border border-white/40 hover:bg-white/10 transition-all">
-              OPEN FLEET PANEL
+              OPEN ROLE BRIEFS
             </button>
           </div>
         </div>
@@ -752,14 +752,16 @@ interface TradeSelectViewProps {
   currentTrade: Trade | null;
   setCurrentTrade: (t: Trade) => void;
   onStart: (trade: Trade, mode: QuizMode) => void;
+  isLoggedIn: boolean;
+  onRequireLogin: () => void;
 }
 const TradeSelectView: React.FC<TradeSelectViewProps> = ({
-  questions, currentTrade, setCurrentTrade, onStart,
+  questions, currentTrade, setCurrentTrade, onStart, isLoggedIn, onRequireLogin,
 }) => (
   <div className="space-y-10 pb-40">
     <header>
-      <h2 className="text-4xl font-black uppercase">Deployment Sectors</h2>
-      <p className="text-slate-400 mt-2">Select a trade to begin your assessment</p>
+      <h2 className="text-4xl font-black uppercase">Training Sectors</h2>
+      <p className="text-slate-400 mt-2">Browse aviation courses by license path. Login is required to take any assessment.</p>
     </header>
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {TRADE_INFO.map(info => {
@@ -775,7 +777,7 @@ const TradeSelectView: React.FC<TradeSelectViewProps> = ({
             </div>
             <h3 className="font-black text-xl uppercase text-slate-900">{info.trade}</h3>
             <p className={`text-xs font-bold mt-2 uppercase ${count > 0 ? 'text-slate-400' : 'text-red-400'}`}>
-              {count > 0 ? `${count} Modules Ready` : 'No Questions Yet'}
+              {count > 0 ? `${count} Question Briefs Loaded` : 'No Question Briefs Yet'}
             </p>
           </div>
         );
@@ -787,24 +789,29 @@ const TradeSelectView: React.FC<TradeSelectViewProps> = ({
           <div>
             <h3 className="text-xl font-black uppercase">{currentTrade}</h3>
             <p className="text-slate-400 text-sm">
-              {questions.filter(q => q.trade === currentTrade).length} questions available
+              {questions.filter(q => q.trade === currentTrade).length} question briefs available
             </p>
           </div>
           <div className="flex gap-4">
             <button
-              onClick={() => onStart(currentTrade, QuizMode.PRACTICE)}
-              className="px-8 py-4 bg-slate-100 hover:bg-slate-200 font-black rounded-xl uppercase transition-all"
+              onClick={() => (isLoggedIn ? onStart(currentTrade, QuizMode.PRACTICE) : onRequireLogin())}
+              className={`px-8 py-4 font-black rounded-xl uppercase transition-all ${isLoggedIn ? 'bg-slate-100 hover:bg-slate-200' : 'bg-slate-200 text-slate-500 hover:bg-slate-300'}`}
             >
-              Practice
+              {isLoggedIn ? 'Practice Sortie' : 'Login to Fly'}
             </button>
             <button
-              onClick={() => onStart(currentTrade, QuizMode.TIMED)}
-              className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-xl uppercase shadow-lg transition-all"
+              onClick={() => (isLoggedIn ? onStart(currentTrade, QuizMode.TIMED) : onRequireLogin())}
+              className={`px-8 py-4 font-black rounded-xl uppercase shadow-lg transition-all ${isLoggedIn ? 'bg-blue-600 hover:bg-blue-500 text-white' : 'bg-blue-200 text-blue-800 hover:bg-blue-300'}`}
             >
-              Final Exam ⏱
+              {isLoggedIn ? 'Checkride Timer ⏱' : 'Authenticate to Launch ⏱'}
             </button>
           </div>
         </div>
+        {!isLoggedIn && (
+          <p className="max-w-4xl mx-auto mt-3 text-xs font-bold text-amber-700">
+            Guest mode allows course visibility only. Sign in to begin practice sorties or timed checkrides.
+          </p>
+        )}
       </div>
     )}
   </div>
@@ -1046,6 +1053,12 @@ const App: React.FC = () => {
 
   // Start quiz
   const startQuiz = useCallback((trade: Trade, mode: QuizMode) => {
+    if (!user) {
+      alert('Login required: you can view course sectors as a guest, but assessment access requires authentication.');
+      setView('AUTH');
+      return;
+    }
+
     const tradeQs = questions.filter(q => q.trade === trade);
     if (tradeQs.length === 0) {
       alert('No questions found for this trade yet. Ask your admin to add questions.');
@@ -1062,7 +1075,7 @@ const App: React.FC = () => {
       timeRemaining: mode === QuizMode.TIMED ? 600 : 0,
     });
     setView('QUIZ');
-  }, [questions]);
+  }, [questions, user]);
 
   const handleAnswer = useCallback((questionId: string, answerId: string) => {
     setSession(prev => {
@@ -1163,12 +1176,20 @@ const App: React.FC = () => {
     if (confirm('Abort mission? Progress will not be saved.')) setView('DASHBOARD');
   }, []);
 
+  useEffect(() => {
+    const protectedViews: View[] = ['DASHBOARD', 'QUIZ', 'RESULTS', 'REVIEW', 'PROFILE', 'ADMIN'];
+    if (!user && protectedViews.includes(view)) {
+      setView('AUTH');
+    }
+  }, [user, view]);
+
+
   return (
     <Layout currentView={view} setView={setView} user={user}>
       <OfflineBadge isOnline={isOnline} />
 
       {view === 'LANDING' && (
-        <LandingView onEnter={() => setView('AUTH')} onFleet={() => setView('FLEET_SPECS')} />
+        <LandingView onEnter={() => setView('TRADE_SELECT')} onFleet={() => setView('FLEET_SPECS')} />
       )}
 
       {view === 'AUTH' && (
@@ -1198,6 +1219,8 @@ const App: React.FC = () => {
           currentTrade={currentTrade}
           setCurrentTrade={setCurrentTrade}
           onStart={startQuiz}
+          isLoggedIn={!!user}
+          onRequireLogin={() => setView('AUTH')}
         />
       )}
 
@@ -1904,7 +1927,7 @@ export default App;
 //           <div>
 //             <h3 className="text-xl font-black uppercase">{currentTrade}</h3>
 //             <p className="text-slate-400 text-sm">
-//               {questions.filter(q => q.trade === currentTrade).length} questions available
+//               {questions.filter(q => q.trade === currentTrade).length} question briefs available
 //             </p>
 //           </div>
 //           <div className="flex gap-4">
