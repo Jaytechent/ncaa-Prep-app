@@ -31,6 +31,45 @@ const LandingView: React.FC<LandingViewProps> = ({ onEnter, onFleet }) => (
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-blue-400/20 rounded-full" />
     </div>
     <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-[140px] opacity-20 -mr-48 -mt-48" />
+    <div className="agusta-landing-wrapper" aria-hidden="true">
+      <div className="agusta-helicopter">
+        <svg viewBox="0 0 560 260" xmlns="http://www.w3.org/2000/svg" role="presentation">
+          <defs>
+            <linearGradient id="agustaBody" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#f8fafc" />
+              <stop offset="55%" stopColor="#cbd5e1" />
+              <stop offset="100%" stopColor="#64748b" />
+            </linearGradient>
+            <linearGradient id="agustaGlass" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#38bdf8" />
+              <stop offset="100%" stopColor="#1d4ed8" />
+            </linearGradient>
+          </defs>
+          <ellipse cx="294" cy="226" rx="150" ry="20" fill="rgba(15, 23, 42, 0.2)" />
+          <g className="agusta-rotor">
+            <rect x="176" y="48" width="228" height="8" rx="4" fill="#0f172a" />
+            <rect x="278" y="8" width="12" height="84" rx="6" fill="#334155" />
+          </g>
+          <g>
+            <path d="M106 145 L200 96 H372 Q460 98 512 138 L530 155 L520 184 H102 Q70 182 68 164 Q66 149 106 145 Z" fill="url(#agustaBody)" />
+            <path d="M192 102 L370 104 Q432 106 486 136 L372 138 L205 136 Z" fill="url(#agustaGlass)" opacity="0.88" />
+            <path d="M76 148 L120 146 L130 178 H84 Q65 178 60 166 Q58 156 76 148 Z" fill="#94a3b8" />
+            <path d="M502 143 L540 138 L548 148 L532 158 L498 160 Z" fill="#64748b" />
+            <rect x="230" y="184" width="198" height="14" rx="6" fill="#0f172a" />
+            <rect x="174" y="186" width="60" height="10" rx="5" fill="#0f172a" />
+            <rect x="426" y="187" width="58" height="10" rx="5" fill="#0f172a" />
+            <rect x="159" y="198" width="346" height="8" rx="4" fill="#1e293b" />
+            <rect x="124" y="132" width="16" height="34" rx="4" fill="#475569" />
+            <rect x="222" y="142" width="58" height="9" rx="4" fill="#0f172a" opacity="0.38" />
+          </g>
+          <g className="agusta-tail-rotor">
+            <rect x="518" y="124" width="30" height="4" rx="2" fill="#cbd5e1" />
+            <rect x="531" y="111" width="4" height="30" rx="2" fill="#cbd5e1" />
+          </g>
+        </svg>
+      </div>
+      <div className="agusta-shadow" />
+    </div>
     <div className="z-10 text-center max-w-3xl">
       <div className="inline-flex items-center gap-2 bg-blue-900/40 border border-blue-500/30 px-4 py-2 rounded-full text-blue-400 text-xs font-bold mb-8 uppercase tracking-widest">
         <span className="w-2 h-2 bg-blue-500 rounded-full animate-ping" />
