@@ -278,12 +278,98 @@ const AgustaW109Nigerian = () => (
   </svg>
 );
 
+
+
+const socialPlatforms = [
+  {
+    name: 'Facebook',
+    href: 'https://www.facebook.com',
+    cta: 'Follow on Facebook',
+    color: 'from-blue-600/30 to-blue-500/10 border-blue-400/40 text-blue-100',
+    icon: (
+      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden="true">
+        <path d="M13.5 8.25V6.75c0-.69.56-1.25 1.25-1.25H16.5V2.5h-2.25A4.25 4.25 0 0 0 10 6.75v1.5H7.5v3h2.5v9h3.5v-9h2.62l.38-3h-3Z" />
+      </svg>
+    ),
+  },
+  {
+    name: 'Instagram',
+    href: 'https://www.instagram.com',
+    cta: 'See Instagram',
+    color: 'from-fuchsia-500/30 to-orange-400/10 border-fuchsia-300/40 text-fuchsia-100',
+    icon: (
+      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <rect x="3.5" y="3.5" width="17" height="17" rx="5" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+  },
+  {
+    name: 'LinkedIn',
+    href: 'https://www.linkedin.com',
+    cta: 'Connect on LinkedIn',
+    color: 'from-sky-600/30 to-sky-500/10 border-sky-300/40 text-sky-100',
+    icon: (
+      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden="true">
+        <path d="M6.2 8.1a2.1 2.1 0 1 1 0-4.2 2.1 2.1 0 0 1 0 4.2ZM4.5 9.7h3.4v9.8H4.5V9.7Zm5.3 0h3.3v1.4h.05c.46-.88 1.6-1.8 3.3-1.8 3.52 0 4.17 2.2 4.17 5.07v5.13h-3.45v-4.55c0-1.08-.02-2.47-1.6-2.47-1.6 0-1.84 1.18-1.84 2.4v4.62H9.8V9.7Z" />
+      </svg>
+    ),
+  },
+];
+
+const MissionTrackIcon: React.FC<{ type: 'ground' | 'maintenance' | 'operations' }> = ({ type }) => {
+  const iconMap = {
+    ground: (
+      <>
+        <path d="M6 16h12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M5 13h14l-2.5-3.5H7.5Z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <circle cx="8" cy="18" r="1.4" fill="currentColor" />
+        <circle cx="16" cy="18" r="1.4" fill="currentColor" />
+      </>
+    ),
+    maintenance: (
+      <>
+        <path d="M12 4.5v3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M8.2 6.1l1.7 2.4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M15.8 6.1l-1.7 2.4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <circle cx="12" cy="13" r="4.3" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M12 10.8v4.4M9.8 13h4.4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      </>
+    ),
+    operations: (
+      <>
+        <path d="M4.5 15.5 12 5l7.5 10.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M12 10.2v8.3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M8.8 15.5h6.4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </>
+    ),
+  } as const;
+
+  return (
+    <svg viewBox="0 0 24 24" className="w-6 h-6" aria-hidden="true">
+      {iconMap[type]}
+    </svg>
+  );
+};
 // ─── LANDING VIEW ────────────────────────────────────────────────────────────
 export const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }> = ({ onEnter, onFleet }) => {
   const missionTracks = [
-    { title: 'Pilot Ground School', details: 'IFR procedures, abnormal checklist drills, and recurrent checkride prep.' },
-    { title: 'Maintenance Certification', details: 'AMM-driven troubleshooting flows, MEL decisions, and release-to-service scenarios.' },
-    { title: 'Operations Control', details: 'Dispatch release planning, ATC phraseology, and weather-risk decision exercises.' },
+    {
+      title: 'Pilot Ground School',
+      details: 'IFR procedures, abnormal checklist drills, and recurrent checkride prep.',
+      icon: 'ground' as const,
+    },
+    {
+      title: 'Maintenance Certification',
+      details: 'AMM-driven troubleshooting flows, MEL decisions, and release-to-service scenarios.',
+      icon: 'maintenance' as const,
+    },
+    {
+      title: 'Operations Control',
+      details: 'Dispatch release planning, ATC phraseology, and weather-risk decision exercises.',
+      icon: 'operations' as const,
+    },
   ];
 
   const metrics = [
@@ -384,7 +470,9 @@ export const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }>
           <div className="grid md:grid-cols-3 gap-6">
             {missionTracks.map(track => (
               <article key={track.title} className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/10 to-white/0 p-7 hover:-translate-y-1 transition-transform">
-                <div className="w-10 h-10 rounded-lg bg-blue-500/20 border border-blue-300/30 mb-4" />
+                <div className="w-12 h-12 rounded-xl bg-blue-500/20 border border-blue-300/30 mb-4 grid place-items-center text-blue-200">
+                  <MissionTrackIcon type={track.icon} />
+                </div>
                 <h3 className="text-xl font-black mb-3">{track.title}</h3>
                 <p className="text-slate-300 leading-relaxed">{track.details}</p>
               </article>
@@ -425,21 +513,11 @@ export const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }>
             </p>
           </article>
           <article className="rounded-3xl border border-white/10 bg-white/5 p-8">
-            <p className="text-xs uppercase tracking-[0.2em] text-blue-300 font-black mb-3">Social Links</p>
-            <ul className="space-y-4">
-              {[
-                ['LinkedIn', 'https://www.linkedin.com', '@ncaa-prep'],
-                ['X / Twitter', 'https://x.com', '@ncaa_prep'],
-                ['YouTube', 'https://www.youtube.com', 'NCAA Prep Academy'],
-              ].map(([name, href, handle]) => (
-                <li key={name} className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <span className="font-bold">{name}</span>
-                  <a href={href} target="_blank" rel="noreferrer" className="text-blue-300 hover:text-blue-200 transition-colors">
-                    {handle}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <p className="text-xs uppercase tracking-[0.2em] text-blue-300 font-black mb-3">Platform</p>
+            <h3 className="text-3xl font-black mb-4">Connect with NCAA Prep from the footer.</h3>
+            <p className="text-slate-300 leading-relaxed">
+              We moved social media CTAs into the page footer with official-style logos so each channel is easier to identify.
+            </p>
           </article>
         </div>
       </section>
@@ -485,12 +563,28 @@ export const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }>
       </section>
 
       <footer className="relative z-10 border-t border-white/10 bg-slate-950/95 px-6 py-10">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between gap-4 text-sm text-slate-400">
-          <p>© {new Date().getFullYear()} NCAA Prep. Aviation readiness with confidence.</p>
-          <div className="flex gap-4">
-            <a className="hover:text-white transition-colors" href="#">Privacy</a>
-            <a className="hover:text-white transition-colors" href="#">Terms</a>
-            <a className="hover:text-white transition-colors" href="#">Support</a>
+        <div className="max-w-6xl mx-auto space-y-6 text-sm text-slate-400">
+          <div className="flex flex-wrap gap-3">
+            {socialPlatforms.map((platform) => (
+              <a
+                key={platform.name}
+                href={platform.href}
+                target="_blank"
+                rel="noreferrer"
+                className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2 font-bold transition-all hover:-translate-y-0.5 bg-gradient-to-r ${platform.color}`}
+              >
+                <span className="grid place-items-center">{platform.icon}</span>
+                <span>{platform.cta}</span>
+              </a>
+            ))}
+          </div>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <p>© {new Date().getFullYear()} NCAA Prep. Aviation readiness with confidence.</p>
+            <div className="flex gap-4">
+              <a className="hover:text-white transition-colors" href="#">Privacy</a>
+              <a className="hover:text-white transition-colors" href="#">Terms</a>
+              <a className="hover:text-white transition-colors" href="#">Support</a>
+            </div>
           </div>
         </div>
       </footer>
