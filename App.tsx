@@ -323,9 +323,12 @@ const TradeSelectView: React.FC<TradeSelectViewProps> = ({
   questions, currentTrade, setCurrentTrade, onStart, isLoggedIn, onRequireLogin,
 }) => (
   <div className="space-y-10 pb-40">
-    <header>
-      <h2 className="text-4xl font-black uppercase">Training Sectors</h2>
-      <p className="text-slate-400 mt-2">Browse aviation courses by license path. Login is required to take any assessment.</p>
+    <header className="border border-black/20 bg-white p-8">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">Course Operations Board</p>
+      <h2 className="mt-3 text-4xl font-black uppercase tracking-tight text-slate-900">Training Sectors</h2>
+      <p className="mt-3 text-sm font-medium text-slate-600">
+        Browse aviation course sectors by certification route. Authentication is required to launch assessments.
+      </p>
     </header>
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {TRADE_INFO.map(info => {
@@ -334,46 +337,58 @@ const TradeSelectView: React.FC<TradeSelectViewProps> = ({
           <div
             key={info.trade}
             onClick={() => setCurrentTrade(info.trade)}
-            className={`cursor-pointer p-8 rounded-[2rem] border-2 transition-all ${currentTrade === info.trade ? 'border-blue-600 bg-blue-50 shadow-lg' : 'border-slate-100 bg-white hover:border-slate-200 shadow-sm'}`}
+            className={`cursor-pointer border-2 p-8 transition-all ${
+              currentTrade === info.trade
+                ? 'border-black bg-slate-100 shadow-[8px_8px_0_0_rgba(15,23,42,0.2)]'
+                : 'border-slate-200 bg-white hover:border-black'
+            }`}
           >
-            <div className={`w-14 h-14 ${info.color} rounded-xl flex items-center justify-center text-3xl mb-6 shadow-md`}>
+            <div className={`mb-6 flex h-14 w-14 items-center justify-center border border-black/20 text-3xl ${info.color}`}>
               {info.icon}
             </div>
             <h3 className="font-black text-xl uppercase text-slate-900">{info.trade}</h3>
-            <p className={`text-xs font-bold mt-2 uppercase ${count > 0 ? 'text-slate-400' : 'text-red-400'}`}>
-              {count > 0 ? `${count} Question Briefs Loaded` : 'No Question Briefs Yet'}
+            <p className={`text-xs font-bold mt-2 uppercase tracking-wider ${count > 0 ? 'text-slate-500' : 'text-red-500'}`}>
+              {count > 0 ? `${count} Flight Brief Questions Loaded` : 'No Flight Brief Questions Loaded'}
             </p>
           </div>
         );
       })}
     </div>
     {currentTrade && (
-      <div className="fixed inset-x-0 bottom-0 p-6 bg-white/95 backdrop-blur-xl border-t z-50 shadow-2xl">
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-black bg-white/95 p-6 backdrop-blur-xl">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
           <div>
-            <h3 className="text-xl font-black uppercase">{currentTrade}</h3>
-            <p className="text-slate-400 text-sm">
-              {questions.filter(q => q.trade === currentTrade).length} question briefs available
+            <h3 className="text-xl font-black uppercase tracking-tight">{currentTrade}</h3>
+            <p className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+              {questions.filter(q => q.trade === currentTrade).length} mission questions available
             </p>
           </div>
           <div className="flex gap-4">
             <button
               onClick={() => (isLoggedIn ? onStart(currentTrade, QuizMode.PRACTICE) : onRequireLogin())}
-              className={`px-8 py-4 font-black rounded-xl uppercase transition-all ${isLoggedIn ? 'bg-slate-100 hover:bg-slate-200' : 'bg-slate-200 text-slate-500 hover:bg-slate-300'}`}
+              className={`px-8 py-4 font-black uppercase transition-all border ${
+                isLoggedIn
+                  ? 'border-black bg-white hover:bg-black hover:text-white'
+                  : 'border-slate-300 bg-slate-200 text-slate-500 hover:bg-slate-300'
+              }`}
             >
-              {isLoggedIn ? 'Practice Sortie' : 'Login to Fly'}
+              {isLoggedIn ? 'Practice Sortie' : 'Authenticate to Fly'}
             </button>
             <button
               onClick={() => (isLoggedIn ? onStart(currentTrade, QuizMode.TIMED) : onRequireLogin())}
-              className={`px-8 py-4 font-black rounded-xl uppercase shadow-lg transition-all ${isLoggedIn ? 'bg-blue-600 hover:bg-blue-500 text-white' : 'bg-blue-200 text-blue-800 hover:bg-blue-300'}`}
+              className={`px-8 py-4 font-black uppercase transition-all border ${
+                isLoggedIn
+                  ? 'border-black bg-black text-white hover:bg-white hover:text-black'
+                  : 'border-blue-300 bg-blue-200 text-blue-900 hover:bg-blue-300'
+              }`}
             >
-              {isLoggedIn ? 'Checkride Timer ⏱' : 'Authenticate to Launch ⏱'}
+              {isLoggedIn ? 'Timed Checkride ⏱' : 'Authenticate to Launch ⏱'}
             </button>
           </div>
         </div>
         {!isLoggedIn && (
-          <p className="max-w-4xl mx-auto mt-3 text-xs font-bold text-amber-700">
-            Guest mode allows course visibility only. Sign in to begin practice sorties or timed checkrides.
+          <p className="max-w-4xl mx-auto mt-3 text-xs font-bold uppercase tracking-wide text-amber-700">
+            Guest mode allows sector visibility only. Sign in to begin practice sorties or timed checkrides.
           </p>
         )}
       </div>
