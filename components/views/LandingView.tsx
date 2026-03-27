@@ -75,7 +75,6 @@ export const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }>
                 Mission Overview
               </button>
             </div>
-          </div>
 
           <aside className="space-y-4">
             <div className="border border-black bg-white p-6">
