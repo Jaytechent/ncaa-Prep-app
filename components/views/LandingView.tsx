@@ -306,6 +306,17 @@ const socialPlatforms = [
     ),
   },
   {
+  name: 'Twitter',
+  href: 'https://x.com/HallenjayArt',
+  cta: 'Follow on Twitter',
+  color: 'from-gray-500/30 to-gray-400/10 border-gray-300/40 text-gray-100',
+  icon: (
+    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor" aria-hidden="true">
+      <path d="M18.244 2H21l-6.56 7.5L22 22h-6.828l-5.34-6.99L3.5 22H1l7.03-8.03L2 2h6.92l4.86 6.44L18.244 2Zm-2.39 18h1.89L8.1 4H6.08l9.774 16Z" />
+    </svg>
+  ),
+},
+  {
     name: 'LinkedIn',
     href: 'https://www.linkedin.com',
     cta: 'Connect on LinkedIn',
@@ -514,10 +525,9 @@ export const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }>
           </article>
           <article className="rounded-3xl border border-white/10 bg-white/5 p-8">
             <p className="text-xs uppercase tracking-[0.2em] text-blue-300 font-black mb-3">Platform</p>
-            <h3 className="text-3xl font-black mb-4">Connect with NCAA Prep from the footer.</h3>
+            <h3 className="text-3xl font-black mb-4">Join the Future of Aviation Training</h3>
             <p className="text-slate-300 leading-relaxed">
-              We moved social media CTAs into the page footer with official-style logos so each channel is easier to identify.
-            </p>
+We provide a centralized, digital-first learning environment tailored for aviation professionals, making it easier to prepare for licensing exams with structured content, practice tools, and real-time progress tracking.            </p>
           </article>
         </div>
       </section>
