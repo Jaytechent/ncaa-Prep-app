@@ -208,3 +208,23 @@ body {
   0%, 100% { transform: translate3d(0, 0, 0) scale(0.98); opacity: 0.16; }
   50% { transform: translate3d(0, -20px, 0) scale(1.02); opacity: 0.28; }
 }
+
+/* Minimal sharp-corner landing experience */
+.landing-grid {
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.09) 1px, transparent 1px);
+  background-size: 52px 52px;
+  mix-blend-mode: multiply;
+  opacity: 0.4;
+  animation: landing-grid-shift 16s linear infinite;
+}
+
+@keyframes landing-grid-shift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(52px, 52px, 0);
+  }
+}
