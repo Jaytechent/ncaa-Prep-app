@@ -1,8 +1,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { Trade } from "../types";
+import { API_BASE_URL } from './apiConfig';
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
-const API_BASE_URL = 'http://localhost:5000/api';
 
 function getToken(): string {
   return localStorage.getItem('ncaa_auth_token') || '';
