@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { View } from '../types';
 
@@ -6,8 +5,10 @@ interface LayoutProps {
   children: React.ReactNode;
   currentView: View;
   setView: (view: View) => void;
-  user: { name: string, role: string } | null;
+  user: { name: string; role: string } | null;
 }
+
+const MONO = "'Space Mono', 'Courier New', monospace";
 
 export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, user }) => {
   const isAuthPage = currentView === 'AUTH' || currentView === 'LANDING';
@@ -15,67 +16,76 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, 
 
   if (isAuthPage) return <>{children}</>;
 
+  const navItems = [
+    { view: 'DASHBOARD', label: 'Dashboard', icon: '▪' },
+    { view: 'TRADE_SELECT', label: 'Courses', icon: '▪' },
+    { view: 'PROFILE', label: 'Profile', icon: '▪' },
+    ...(isAdmin ? [{ view: 'ADMIN', label: 'Admin', icon: '▪' }] : []),
+  ] as { view: View; label: string; icon: string }[];
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
-      {/* Sidebar for Desktop */}
-      <aside className="hidden md:flex flex-col w-64 bg-slate-900 text-white p-6 sticky top-0 h-screen">
-        <div className="flex items-center gap-2 mb-10">
-          <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center text-slate-900 font-bold text-xl">N</div>
-          <h1 className="font-bold text-lg tracking-tight">NCAA PRO</h1>
+    <div className="min-h-screen bg-white flex flex-col md:flex-row" style={{ fontFamily: MONO }}>
+
+      {/* ── SIDEBAR (desktop) ─────────────────────────────────────────────── */}
+      <aside className="hidden md:flex flex-col w-56 bg-black text-white sticky top-0 h-screen border-r-2 border-black" style={{ fontFamily: MONO }}>
+
+        {/* Logo */}
+        <div className="flex items-center gap-3 px-6 py-5 border-b-2 border-gray-800">
+          <div className="w-8 h-8 bg-[#0057FF] flex items-center justify-center font-black text-white text-sm">N</div>
+          <span className="font-black text-xs uppercase tracking-widest">NCAA PRO</span>
         </div>
 
-        <nav className="flex-1 space-y-2">
-          <button 
-            onClick={() => setView('DASHBOARD')}
-            className={`w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors ${currentView === 'DASHBOARD' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
-          >
-            <span>📊</span> Dashboard
-          </button>
-          <button 
-            onClick={() => setView('TRADE_SELECT')}
-            className={`w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors ${currentView === 'TRADE_SELECT' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
-          >
-            <span>🎓</span> Courses
-          </button>
-          <button 
-            onClick={() => setView('PROFILE')}
-            className={`w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors ${currentView === 'PROFILE' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
-          >
-            <span>👤</span> Profile
-          </button>
-          
-          {isAdmin && (
-            <button 
-              onClick={() => setView('ADMIN')}
-              className={`w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors ${currentView === 'ADMIN' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800'}`}
-            >
-              <span>⚙️</span> Admin
-            </button>
-          )}
+        {/* Nav */}
+        <nav className="flex-1 flex flex-col">
+          {navItems.map(item => {
+            const isActive = currentView === item.view;
+            return (
+              <button
+                key={item.view}
+                onClick={() => setView(item.view)}
+                className={`w-full text-left px-6 py-4 flex items-center gap-3 text-xs font-black uppercase tracking-widest transition-colors border-b border-gray-900 ${
+                  isActive
+                    ? 'bg-[#0057FF] text-white border-b-[#0057FF]'
+                    : 'text-gray-400 hover:bg-gray-900 hover:text-white'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 ${isActive ? 'bg-white' : 'bg-gray-600'}`} />
+                {item.label}
+              </button>
+            );
+          })}
         </nav>
 
-        <div className="mt-auto pt-6 border-t border-slate-800">
-          <div className="flex items-center gap-3 px-2">
-            <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold">
-              {user?.name?.[0] || 'U'}
+        {/* User section */}
+        <div className="border-t-2 border-gray-800">
+          <div className="px-6 py-4 flex items-center gap-3">
+            <div className="w-8 h-8 border border-[#0057FF] flex items-center justify-center font-black text-[#0057FF] text-xs flex-shrink-0">
+              {user?.name?.[0]?.toUpperCase() || 'U'}
             </div>
-            <div className="overflow-hidden text-ellipsis">
-              <p className="text-sm font-semibold truncate">{user?.name || 'Aviation Pro'}</p>
-              <button onClick={() => setView('LANDING')} className="text-xs text-slate-400 hover:text-white">Sign out</button>
+            <div className="overflow-hidden min-w-0">
+              <p className="text-xs font-black truncate text-white">{user?.name || 'Aviation Pro'}</p>
+              <button
+                onClick={() => setView('LANDING')}
+                className="text-[10px] text-gray-500 hover:text-[#0057FF] transition-colors uppercase tracking-widest"
+              >
+                Sign out
+              </button>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 pb-20 md:pb-0 overflow-y-auto">
-        <header className="md:hidden flex items-center justify-between p-4 bg-white border-b sticky top-0 z-10">
-           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-yellow-400 rounded flex items-center justify-center text-slate-900 font-bold">N</div>
-            <h1 className="font-bold text-slate-900">NCAA PRO</h1>
+      {/* ── MAIN CONTENT ──────────────────────────────────────────────────── */}
+      <main className="flex-1 pb-20 md:pb-0 overflow-y-auto bg-white">
+
+        {/* Mobile top bar */}
+        <header className="md:hidden flex items-center justify-between px-4 py-3 bg-black border-b-2 border-black sticky top-0 z-10">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-[#0057FF] flex items-center justify-center font-black text-white text-xs">N</div>
+            <span className="font-black text-white text-xs uppercase tracking-widest">NCAA PRO</span>
           </div>
-          <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold">
-            {user?.name?.[0] || 'U'}
+          <div className="w-7 h-7 border border-[#0057FF] flex items-center justify-center text-[#0057FF] text-xs font-black">
+            {user?.name?.[0]?.toUpperCase() || 'U'}
           </div>
         </header>
 
@@ -84,26 +94,21 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, 
         </div>
       </main>
 
-      {/* Bottom Nav for Mobile */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t flex items-center justify-around py-3 px-4 z-20">
-        <button onClick={() => setView('DASHBOARD')} className={`flex flex-col items-center gap-1 ${currentView === 'DASHBOARD' ? 'text-blue-600' : 'text-slate-400'}`}>
-          <span className="text-xl">📊</span>
-          <span className="text-[10px] font-medium">Dash</span>
-        </button>
-        <button onClick={() => setView('TRADE_SELECT')} className={`flex flex-col items-center gap-1 ${currentView === 'TRADE_SELECT' ? 'text-blue-600' : 'text-slate-400'}`}>
-          <span className="text-xl">🎓</span>
-          <span className="text-[10px] font-medium">Study</span>
-        </button>
-        <button onClick={() => setView('PROFILE')} className={`flex flex-col items-center gap-1 ${currentView === 'PROFILE' ? 'text-blue-600' : 'text-slate-400'}`}>
-          <span className="text-xl">👤</span>
-          <span className="text-[10px] font-medium">Profile</span>
-        </button>
-        {isAdmin && (
-          <button onClick={() => setView('ADMIN')} className={`flex flex-col items-center gap-1 ${currentView === 'ADMIN' ? 'text-blue-600' : 'text-slate-400'}`}>
-            <span className="text-xl">⚙️</span>
-            <span className="text-[10px] font-medium">Admin</span>
-          </button>
-        )}
+      {/* ── BOTTOM NAV (mobile) ────────────────────────────────────────────── */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-black border-t-2 border-black flex items-center z-20" style={{ fontFamily: MONO }}>
+        {navItems.map(item => {
+          const isActive = currentView === item.view;
+          return (
+            <button
+              key={item.view}
+              onClick={() => setView(item.view)}
+              className={`flex-1 flex flex-col items-center py-3 gap-1 transition-colors ${isActive ? 'text-[#0057FF]' : 'text-gray-500'}`}
+            >
+              <span className={`w-1.5 h-1.5 ${isActive ? 'bg-[#0057FF]' : 'bg-gray-700'}`} />
+              <span className="text-[9px] font-black uppercase tracking-widest">{item.label}</span>
+            </button>
+          );
+        })}
       </nav>
     </div>
   );
