@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Azeret+Mono:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500;1,700;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
 
 :root {
   font-family: 'Space Mono', 'Courier New', monospace;
@@ -7,30 +7,30 @@
 body {
   margin: 0;
   font-family: inherit;
-  cursor: none;
+  /* NOTE: cursor:none intentionally removed — was making cursor invisible
+     throughout the whole app. The landing page scopes it via .landing-cursor-none */
 }
 
 #root {
   min-height: 100vh;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   ROTOR ANIMATIONS  — shared across layouts
-═══════════════════════════════════════════════════════════════ */
-@keyframes rotor-spin {
-  to { transform: rotate(360deg); }
+/* Landing page: hide default cursor so the custom dot-cursor shows */
+.landing-cursor-none {
+  cursor: none;
 }
 
-@keyframes tail-rotor-spin {
-  to { transform: rotate(-360deg); }
-}
+/* ═══════════════════════════════════════════════════════════════
+   ROTOR ANIMATIONS
+═══════════════════════════════════════════════════════════════ */
+@keyframes rotor-spin     { to { transform: rotate(360deg);  } }
+@keyframes tail-rotor-spin{ to { transform: rotate(-360deg); } }
 
 .rotor-main {
   transform-box: fill-box;
   transform-origin: center center;
   animation: rotor-spin 0.10s linear infinite;
 }
-
 .rotor-tail {
   transform-box: fill-box;
   transform-origin: center center;
@@ -38,63 +38,72 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   HELICOPTER ENTRY ANIMATIONS — new brutalist landing
+   HELICOPTER ENTRY ANIMATIONS
 ═══════════════════════════════════════════════════════════════ */
 @keyframes heli-r {
-  0%   { opacity: 0; transform: translate(400px, -200px) scale(0.3) rotate(15deg); }
-  15%  { opacity: 1; }
-  70%  { transform: translate(30px, 10px) scale(1) rotate(1deg); }
-  100% { opacity: 1; transform: translate(0, 0) scale(1) rotate(0deg); }
+  0%   { opacity:0; transform:translate(400px,-200px) scale(0.3) rotate(15deg); }
+  15%  { opacity:1; }
+  70%  { transform:translate(30px,10px) scale(1) rotate(1deg); }
+  100% { opacity:1; transform:translate(0,0) scale(1) rotate(0deg); }
 }
-
 @keyframes heli-l {
-  0%   { opacity: 0; transform: scaleX(-1) translate(360px, -160px) scale(0.28) rotate(-12deg); }
-  15%  { opacity: 1; }
-  70%  { transform: scaleX(-1) translate(20px, 8px) scale(0.9) rotate(-1deg); }
-  100% { opacity: 1; transform: scaleX(-1) translate(0, 0) scale(0.9) rotate(0deg); }
+  0%   { opacity:0; transform:scaleX(-1) translate(360px,-160px) scale(0.28) rotate(-12deg); }
+  15%  { opacity:1; }
+  70%  { transform:scaleX(-1) translate(20px,8px) scale(0.9) rotate(-1deg); }
+  100% { opacity:1; transform:scaleX(-1) translate(0,0) scale(0.9) rotate(0deg); }
 }
 
-.heli-right {
-  animation: heli-r 5s cubic-bezier(0.22, 0.61, 0.36, 1) 0.2s forwards;
-  opacity: 0;
-}
-
-.heli-left {
-  animation: heli-l 5s cubic-bezier(0.22, 0.61, 0.36, 1) 1.2s forwards;
-  opacity: 0;
-  transform: scaleX(-1);
-}
+.heli-right { animation:heli-r 5s cubic-bezier(.22,.61,.36,1) 0.2s forwards; opacity:0; }
+.heli-left  { animation:heli-l 5s cubic-bezier(.22,.61,.36,1) 1.2s forwards; opacity:0; transform:scaleX(-1); }
 
 /* ═══════════════════════════════════════════════════════════════
-   TICKER TAPE
+   TICKER / FADE-UP
 ═══════════════════════════════════════════════════════════════ */
-@keyframes ticker {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
+@keyframes ticker  { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+@keyframes fadeUp  { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
 
-.ticker {
-  animation: ticker 30s linear infinite;
-}
+.ticker    { animation:ticker 30s linear infinite; }
+.fade-up   { animation:fadeUp 0.7s ease forwards; }
+.fade-up-1 { animation:fadeUp 0.7s ease 0.10s forwards; opacity:0; }
+.fade-up-2 { animation:fadeUp 0.7s ease 0.20s forwards; opacity:0; }
+.fade-up-3 { animation:fadeUp 0.7s ease 0.35s forwards; opacity:0; }
+.fade-up-4 { animation:fadeUp 0.7s ease 0.50s forwards; opacity:0; }
 
 /* ═══════════════════════════════════════════════════════════════
-   FADE UP REVEALS
+   SHARP CORNERS EVERYWHERE
 ═══════════════════════════════════════════════════════════════ */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.fade-up   { animation: fadeUp 0.7s ease forwards; }
-.fade-up-1 { animation: fadeUp 0.7s ease 0.10s forwards; opacity: 0; }
-.fade-up-2 { animation: fadeUp 0.7s ease 0.20s forwards; opacity: 0; }
-.fade-up-3 { animation: fadeUp 0.7s ease 0.35s forwards; opacity: 0; }
-.fade-up-4 { animation: fadeUp 0.7s ease 0.50s forwards; opacity: 0; }
+button, input, textarea, select { border-radius: 0 !important; }
 
 /* ═══════════════════════════════════════════════════════════════
-   GLOBAL — Sharp corners enforcement
-   (Tailwind still handles most, this is belt-and-suspenders)
+   DAY / NIGHT TOGGLE  (used inside Layout sidebar)
 ═══════════════════════════════════════════════════════════════ */
-button, input, textarea, select {
-  border-radius: 0 !important;
+.theme-switch {
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid #2a2a2a;
+}
+.theme-switch__track {
+  position: absolute;
+  inset: 0;
+  width: 50%;
+  background: #0057FF;
+  transition: transform 0.22s ease;
+}
+.theme-switch__track--night { transform: translateX(100%); }
+
+.theme-switch__label {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding: 7px 0;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  transition: color 0.22s ease;
+  font-family: 'Space Mono', monospace;
 }

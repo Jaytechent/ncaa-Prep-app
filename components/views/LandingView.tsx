@@ -340,8 +340,8 @@ export const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }>
 
   return (
     <div
-      className="bg-white text-black relative overflow-x-hidden"
-      style={{ fontFamily: "'Space Mono', 'Courier New', monospace", cursor: 'none' }}
+      className="landing-cursor-none bg-white text-black relative overflow-x-hidden"
+      style={{ fontFamily: "'Space Mono', 'Courier New', monospace" }}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
