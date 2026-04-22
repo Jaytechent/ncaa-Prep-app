@@ -115,7 +115,7 @@ export const apiService = {
       if (!response.ok) return null;
       return await response.json();
     } catch {
-      console.warn('Could not sync stats to cloud.');
+      console.warn('Could not synchronise stats to cloud.');
       return null;
     }
   },
