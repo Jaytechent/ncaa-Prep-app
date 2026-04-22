@@ -322,7 +322,7 @@ Answer: C`}</pre>
 
               {reviewCount > 0 && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 text-sm text-yellow-800">
-                  <p className="font-black">⚠️ {reviewCount} question(s) need your attention</p>
+                  <p className="font-black"> {reviewCount} question(s) need your attention</p>
                   <p className="mt-1 text-xs">No answer marker was detected. Please select the correct answer below before saving.</p>
                 </div>
               )}
