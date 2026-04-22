@@ -8,20 +8,14 @@ on:
 jobs:
   rosentic:
     runs-on: ubuntu-latest
-
     permissions:
       contents: read
       pull-requests: write
-
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - uses: Rosentic/rosentic-action@v1
-
-
-
 
 
 
