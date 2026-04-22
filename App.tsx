@@ -346,7 +346,7 @@ const LandingView: React.FC<{ onEnter: () => void; onFleet: () => void }> = ({ o
                 onClick={onEnter}
                 className="px-8 py-4 rounded-xl font-black tracking-wide bg-blue-600 hover:bg-blue-500 transition-all shadow-[0_0_40px_rgba(37,99,235,0.4)]"
               >
-                OPEN COURSE CATALOG
+                 COURSE CATALOG
               </button>
               <button
                 onClick={onFleet}
@@ -1956,7 +1956,7 @@ export default App;
 //     className={`fixed top-4 left-1/2 -translate-x-1/2 z-[100] px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg backdrop-blur-md ${isOnline ? 'bg-green-500/10 border-green-500/30 text-green-500' : 'bg-orange-500/10 border-orange-500/30 text-orange-500 animate-pulse'}`}
 //   >
 //     <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-orange-500'}`}></span>
-//     {isOnline ? 'Cloud Sync Online' : 'Local Offline Mode Active'}
+//     {isOnline ? 'Cloud Online' : 'Local Offline Mode Active'}
 //   </div>
 // );
 
