@@ -17,7 +17,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, 
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
-      {/* Sidebar for Desktop */}
+      {/* Sidebar forDesktop */}
       <aside className="hidden md:flex flex-col w-64 bg-slate-900 text-white p-6 sticky top-0 h-screen">
         <div className="flex items-center gap-2 mb-10">
           <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center text-slate-900 font-bold text-xl">N</div>
