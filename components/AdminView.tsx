@@ -187,7 +187,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ questions, setQuestions })
       {tab === 'uplink' && (
         <div className="space-y-6">
 
-          {/* Format guide toggle */}
+          {/* Formats guide toggle */}
           <div className="bg-white rounded-2xl border overflow-hidden">
             <button onClick={() => setShowFormat(f => !f)} className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50 transition-colors">
               <div className="flex items-center gap-3">
