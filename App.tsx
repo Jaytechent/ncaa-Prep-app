@@ -4,7 +4,7 @@ import { INITIAL_QUESTIONS, TRADE_INFO } from './constants';
 import { Layout } from './components/Layout';
 import { AdminView } from './components/AdminView';
 import { apiService } from './services/apiService';
-import { LandingView } from './components/views/LandingView';
+import { LandingView, OfflineBadge } from './components/views/LandingView';
 
 const MONO = "'Space Mono', 'Courier New', monospace";
 
@@ -772,6 +772,7 @@ const App: React.FC = () => {
 
   return (
     <Layout currentView={view} setView={setView} user={user} darkMode={darkMode} toggleDark={toggleDark}>
+      <OfflineBadge isOnline={isOnline} />
       {view === 'LANDING'       && <LandingView onEnter={() => setView('TRADE_SELECT')} onFleet={() => setView('FLEET_SPECS')} />}
       {view === 'AUTH'          && <AuthView authMode={authMode} setAuthMode={setAuthMode} authData={authData} setAuthData={setAuthData} authError={authError} onSubmit={handleAuth} darkMode={darkMode} />}
       {view === 'DASHBOARD'     && <DashboardView user={user} stats={stats} isOnline={isOnline} questions={questions} onScramble={() => startQuiz(Trade.SAFETY_HUMAN_FACTORS, QuizMode.TIMED)} darkMode={darkMode} />}

@@ -4,13 +4,13 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 export const OfflineBadge: React.FC<{ isOnline: boolean }> = ({ isOnline }) => (
   <div
     style={{ fontFamily: "'Space Mono', monospace" }}
-    className={`fixed top-4 left-1/2 -translate-x-1/2 z-[100] px-4 py-1.5 border text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 shadow-lg ${
+    className={`fixed top-3 left-1/2 -translate-x-1/2 z-[100] px-2.5 py-1 border text-[8px] font-black uppercase tracking-[0.14em] flex items-center gap-1.5 shadow-md ${
       isOnline
         ? 'bg-white border-black text-black'
         : 'bg-black border-black text-[#00FF87] animate-pulse'
     }`}
   >
-    <span className={`w-2 h-2 ${isOnline ? 'bg-black' : 'bg-[#00FF87]'}`} />
+    <span className={`w-1.5 h-1.5 ${isOnline ? 'bg-black' : 'bg-[#00FF87]'}`} />
     {isOnline ? 'Cloud Sync Online' : 'Local Offline Mode Active'}
   </div>
 );
