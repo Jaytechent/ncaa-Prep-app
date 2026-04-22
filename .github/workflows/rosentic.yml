@@ -8,43 +8,14 @@ on:
 jobs:
   rosentic:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       pull-requests: write
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - uses: Rosentic/rosentic-action@v1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<<<<<<< HEAD:.github/workflows/rosentic.yml
-=======
-# name: Keep Render Backend Awake
-
-# on:
-#   schedule:
-#     - cron: '*/20 * * * *'
-#   workflow_dispatch:
-
-# jobs:
-#   ping-server:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Ping Render App
-#         run: |
-#           curl -s https://ncaa-prep-app.onrender.com/
->>>>>>> 4ee19ca88328c95eab10a535879c961bde08e81c:.github/workflows/rosentic.yaml
