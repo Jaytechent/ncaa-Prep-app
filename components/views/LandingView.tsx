@@ -11,7 +11,7 @@ export const OfflineBadge: React.FC<{ isOnline: boolean }> = ({ isOnline }) => (
     }`}
   >
     <span className={`w-1.5 h-1.5 ${isOnline ? 'bg-black' : 'bg-[#00FF87]'}`} />
-    {isOnline ? 'Cloud Sync Online' : 'Local Offline Mode Active'}
+    {isOnline ? 'Cloud Online' : 'Local Offline Active'}
   </div>
 );
 
