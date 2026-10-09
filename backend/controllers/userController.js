@@ -2,6 +2,10 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
+
+const RESET_TOKEN_TTL_MIN = 15;
+const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET || 'ncaa_secret_key_777', { expiresIn: '30d' });
 };
@@ -86,4 +90,99 @@ const updateUserStats = async (req, res, next) => {
   }
 };
 
-module.exports = { authUser, registerUser, updateUserStats };
+// @desc    Send password reset email
+// @route   POST /api/users/forgot-password
+const forgotPassword = async (req, res, next) => {
+  const email = (req.body.email || '').trim().toLowerCase();
+  // Same response whether or not the account exists (prevents email enumeration)
+  const genericReply = { message: 'If an account with that email exists, a reset link has been sent.' };
+
+  try {
+    if (!email) {
+      res.status(400);
+      throw new Error('Email is required');
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) return res.json(genericReply);
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = hashToken(resetToken);
+    user.resetPasswordExpires = Date.now() + RESET_TOKEN_TTL_MIN * 60 * 1000;
+    await user.save({ validateBeforeSave: false });
+
+    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
+    const resetUrl = `${frontendUrl}/?reset_token=${resetToken}`;
+
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: 'Reset your NCAA Prep password',
+        text: `Hi ${user.name},\n\nReset your password using this link (valid for ${RESET_TOKEN_TTL_MIN} minutes):\n${resetUrl}\n\nIf you didn't request this, you can ignore this email.`,
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:480px;margin:auto">
+            <h2>Password reset</h2>
+            <p>Hi ${user.name},</p>
+            <p>Click the button below to choose a new password. This link expires in ${RESET_TOKEN_TTL_MIN} minutes.</p>
+            <p>
+              <a href="${resetUrl}"
+                 style="display:inline-block;padding:12px 24px;background:#0057FF;color:#fff;text-decoration:none;font-weight:bold">
+                Reset Password
+              </a>
+            </p>
+            <p style="font-size:12px;color:#666">Or paste this link into your browser:<br/>${resetUrl}</p>
+            <p style="font-size:12px;color:#666">If you didn't request this, you can safely ignore this email.</p>
+          </div>`,
+      });
+    } catch (mailError) {
+      // Don't leave a usable token behind if the email never went out
+      user.resetPasswordToken = null;
+      user.resetPasswordExpires = null;
+      await user.save({ validateBeforeSave: false });
+      console.error('Reset email failed:', mailError.message);
+      res.status(500);
+      throw new Error('Could not send reset email. Please try again later.');
+    }
+
+    res.json(genericReply);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Reset password using emailed token
+// @route   POST /api/users/reset-password
+const resetPassword = async (req, res, next) => {
+  const { token, newPassword } = req.body;
+  try {
+    if (!token || !newPassword) {
+      res.status(400);
+      throw new Error('Token and new password are required');
+    }
+    if (newPassword.length < 6) {
+      res.status(400);
+      throw new Error('Password must be at least 6 characters');
+    }
+
+    const user = await User.findOne({
+      resetPasswordToken: hashToken(token),
+      resetPasswordExpires: { $gt: Date.now() },
+    }).select('+resetPasswordToken +resetPasswordExpires');
+
+    if (!user) {
+      res.status(400);
+      throw new Error('Reset link is invalid or has expired');
+    }
+
+    user.password = newPassword; // hashed by the pre('save') hook
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+
+    res.json({ message: 'Password reset successful. You can now log in.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { authUser, registerUser, updateUserStats, forgotPassword, resetPassword };

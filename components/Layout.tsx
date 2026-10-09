@@ -10,7 +10,7 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children, currentView, setView, user }) => {
-  const isAuthPage = currentView === 'AUTH' || currentView === 'LANDING';
+  const isAuthPage = currentView === 'AUTH' || currentView === 'LANDING' || currentView === 'FORGOT_PASSWORD' || currentView === 'RESET_PASSWORD';
   const isAdmin = user?.role === 'admin';
 
   if (isAuthPage) return <>{children}</>;

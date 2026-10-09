@@ -52,4 +52,4 @@ export interface UserStats {
   }[];
 }
 
-export type View = 'LANDING' | 'AUTH' | 'DASHBOARD' | 'TRADE_SELECT' | 'QUIZ' | 'RESULTS' | 'REVIEW' | 'PROFILE' | 'ADMIN' | 'FLEET_SPECS';
+export type View = 'LANDING' | 'AUTH' | 'DASHBOARD' | 'TRADE_SELECT' | 'QUIZ' | 'RESULTS' | 'REVIEW' | 'PROFILE' | 'ADMIN' | 'FLEET_SPECS' | 'FORGOT_PASSWORD' | 'RESET_PASSWORD';
