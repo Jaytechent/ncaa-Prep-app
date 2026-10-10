@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
   resetPasswordToken: { type: String, select: false },
   resetPasswordExpires: { type: Date, select: false },
+  resetPasswordRequestedAt: { type: Date, select: false },
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
   stats: {
     totalQuizzes: { type: Number, default: 0 },

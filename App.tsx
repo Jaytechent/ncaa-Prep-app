@@ -14,10 +14,10 @@ const mkTheme = (dm: boolean) => ({
   page     : dm ? 'bg-[#111111] text-[#f0f0f0]' : 'bg-white text-black',
   border   : dm ? 'border-[#2a2a2a]' : 'border-black',
   panel    : dm ? 'bg-[#1a1a1a]'     : 'bg-gray-50',
-  input    : dm ? 'bg-[#222] text-[#f0f0f0] placeholder-[#555]' : 'bg-white text-black placeholder-gray-400',
+  input    : dm ? 'bg-[#252525] text-[#f9fafb] placeholder-[#a3a3a3]' : 'bg-white text-[#111827] placeholder-[#6b7280]',
   text     : dm ? 'text-[#f0f0f0]'   : 'text-black',
   textDim  : dm ? 'text-[#666]'      : 'text-gray-500',
-  textMid  : dm ? 'text-[#888]'      : 'text-gray-400',
+  textMid  : dm ? 'text-[#b0b0b0]'    : 'text-gray-600',
   accentBg : dm ? 'bg-[#0d1f3c]'     : 'bg-[#EEF3FF]',
   accentText: 'text-[#0057FF]',
   blackSection: dm ? 'bg-[#0a0a0a]'  : 'bg-black',
@@ -31,7 +31,7 @@ interface AuthViewProps {
   authData: { name: string; email: string; password: string };
   setAuthData: React.Dispatch<React.SetStateAction<{ name: string; email: string; password: string }>>;
   authError: string;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (e: React.FormEvent) => Promise<boolean | void> | boolean | void;
   darkMode: boolean;
 }
 
@@ -42,12 +42,24 @@ const AuthView: React.FC<AuthViewProps> = ({
   const dm = darkMode;
   const [confirmPassword, setConfirmPassword] = useState('');
   const [localError, setLocalError] = useState('');
-  const submitForm = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return;
+    const timer = window.setTimeout(() => setCooldownSeconds(seconds => Math.max(0, seconds - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [cooldownSeconds]);
+  const submitForm = async (e: React.FormEvent) => {
     setLocalError('');
     if (authMode === 'RESET' && authData.password !== confirmPassword) {
       e.preventDefault(); setLocalError('Passwords do not match.'); return;
     }
-    onSubmit(e);
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const succeeded = await onSubmit(e);
+      if (authMode === 'FORGOT' && succeeded !== false) setCooldownSeconds(60);
+    } finally { setIsSubmitting(false); }
   };
   return (
     <div className={`min-h-screen ${t.page} flex items-center justify-center p-4`} style={{ fontFamily: MONO }}>
@@ -90,7 +102,7 @@ const AuthView: React.FC<AuthViewProps> = ({
                 <input
                   type="text" required value={authData.name}
                   onChange={e => setAuthData(prev => ({ ...prev, name: e.target.value }))}
-                  className={`border-2 ${t.border} border-b-0 px-4 py-3 text-sm ${t.input} focus:outline-none focus:bg-[#0d1f3c] transition-colors`}
+                  className={`border-2 ${dm ? 'border-[#666]' : 'border-[#9ca3af]'} border-b-0 px-4 py-3 text-sm ${t.input} focus:outline-none ${dm ? 'focus:bg-[#172b46] focus:text-white focus:border-[#6ea8ff]' : 'focus:bg-[#eef4ff] focus:text-[#111827] focus:border-[#0057FF]'} transition-colors`}
                   style={{ fontFamily: MONO }}
                   placeholder="Captain Maverick"
                 />
@@ -105,7 +117,7 @@ const AuthView: React.FC<AuthViewProps> = ({
               type="email" required value={authData.email}
               onChange={e => setAuthData(prev => ({ ...prev, email: e.target.value }))}
               placeholder="name@airline.com"
-              className={`border-2 ${t.border} border-b-0 px-4 py-3 text-sm ${t.input} focus:outline-none focus:bg-[#0d1f3c] transition-colors`}
+              className={`border-2 ${dm ? 'border-[#666]' : 'border-[#9ca3af]'} border-b-0 px-4 py-3 text-sm ${t.input} focus:outline-none ${dm ? 'focus:bg-[#172b46] focus:text-white focus:border-[#6ea8ff]' : 'focus:bg-[#eef4ff] focus:text-[#111827] focus:border-[#0057FF]'} transition-colors`}
               style={{ fontFamily: MONO }}
             />
             </>}
@@ -118,23 +130,29 @@ const AuthView: React.FC<AuthViewProps> = ({
               type="password" required minLength={authMode === 'RESET' ? 8 : undefined} value={authData.password}
               onChange={e => setAuthData(prev => ({ ...prev, password: e.target.value }))}
               placeholder="••••••••"
-              className={`border-2 ${t.border} px-4 py-3 text-sm ${t.input} focus:outline-none focus:bg-[#0d1f3c] transition-colors`}
+              className={`border-2 ${dm ? 'border-[#666]' : 'border-[#9ca3af]'} px-4 py-3 text-sm ${t.input} focus:outline-none ${dm ? 'focus:bg-[#172b46] focus:text-white focus:border-[#6ea8ff]' : 'focus:bg-[#eef4ff] focus:text-[#111827] focus:border-[#0057FF]'} transition-colors`}
               style={{ fontFamily: MONO }}
             />
             {authMode === 'RESET' && <>
               <label className={`text-[10px] font-black ${t.textMid} uppercase tracking-widest px-4 pt-3 pb-1 border-2 ${t.border} border-b-0 ${t.panel}`}>Confirm New Security Pass</label>
-              <input type="password" required minLength={8} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Repeat new password" className={`border-2 ${t.border} px-4 py-3 text-sm ${t.input} focus:outline-none focus:bg-[#0d1f3c] transition-colors`} style={{ fontFamily: MONO }} />
+              <input type="password" required minLength={8} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Repeat new password" className={`border-2 ${dm ? 'border-[#666]' : 'border-[#9ca3af]'} px-4 py-3 text-sm ${t.input} focus:outline-none ${dm ? 'focus:bg-[#172b46] focus:text-white focus:border-[#6ea8ff]' : 'focus:bg-[#eef4ff] focus:text-[#111827] focus:border-[#0057FF]'} transition-colors`} style={{ fontFamily: MONO }} />
             </>}
             </>}
 
             <button
               type="submit"
-              className="py-4 bg-[#0057FF] text-white font-black text-xs uppercase tracking-widest border-2 border-[#0057FF] hover:bg-black hover:border-black transition-colors mt-4"
+              disabled={isSubmitting || (authMode === 'FORGOT' && cooldownSeconds > 0)}
+              className="py-4 bg-[#0057FF] text-white font-black text-xs uppercase tracking-widest border-2 border-[#0057FF] hover:bg-black hover:border-black transition-colors mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
               style={{ fontFamily: MONO }}
             >
-              {authMode === 'LOGIN' ? 'Authorize Access →' : authMode === 'REGISTER' ? 'Initialize Asset →' : authMode === 'FORGOT' ? 'Send Reset Link →' : 'Save New Password →'}
+              {isSubmitting ? (authMode === 'FORGOT' ? 'Sending Reset Link…' : 'Processing…') : authMode === 'FORGOT' && cooldownSeconds > 0 ? `Resend in ${cooldownSeconds}s` : authMode === 'LOGIN' ? 'Authorize Access →' : authMode === 'REGISTER' ? 'Initialize Asset →' : authMode === 'FORGOT' ? 'Send Reset Link →' : 'Save New Password →'}
             </button>
           </form>
+          {authMode === 'FORGOT' && cooldownSeconds > 0 && (
+            <p role="status" aria-live="polite" className={`mt-3 text-center text-[10px] ${t.textMid}`}>
+              For your security, you can request another reset link in {cooldownSeconds} second{cooldownSeconds === 1 ? '' : 's'}.
+            </p>
+          )}
 
           {authMode === 'LOGIN' && <button type="button" onClick={() => { setAuthMode('FORGOT'); setLocalError(''); }} className="w-full text-center mt-4 text-[10px] font-bold text-[#0057FF] hover:underline uppercase tracking-widest" style={{ fontFamily: MONO }}>Forgot password?</button>}
           <button
@@ -775,7 +793,7 @@ const App: React.FC = () => {
     try {
       if (authMode === 'FORGOT') {
         const result = await apiService.requestPasswordReset(authData.email);
-        setAuthError(result.message); return;
+        setAuthError(result.message); return true;
       }
       if (authMode === 'RESET') {
         const token = new URLSearchParams(window.location.search).get('resetToken');
@@ -791,7 +809,7 @@ const App: React.FC = () => {
       setUser(data);
       if (data.stats) setStats(data.stats);
       setView('DASHBOARD');
-    } catch (err: any) { setAuthError(err.message || 'Authentication failed'); }
+    } catch (err: any) { setAuthError(err.message || 'Authentication failed'); return false; }
   }, [authMode, authData]);
 
   const handleAbort = useCallback(() => {
