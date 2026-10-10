@@ -98,11 +98,24 @@ export const apiService = {
 
 
   async requestPasswordReset(email: string): Promise<{ message: string }> {
-    const response = await fetch(`${API_BASE_URL}/users/forgot-password`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 25000);
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}/users/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+        signal: controller.signal,
+      });
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        throw new Error('The reset request timed out. Please try again shortly. If this continues, contact support.');
+      }
+      throw new Error('Could not reach the password reset service. Check your connection and try again.');
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
     const data = await response.json().catch(() => ({}));
     if (!response.ok) throw new Error(data.message || 'Could not request password reset.');
     return data;
