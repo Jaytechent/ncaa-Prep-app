@@ -96,6 +96,29 @@ export const apiService = {
     return data;
   },
 
+
+  async requestPasswordReset(email: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/users/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.message || 'Could not request password reset.');
+    return data;
+  },
+
+  async resetPassword(token: string, password: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/users/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, password }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.message || 'Could not reset password.');
+    return data;
+  },
+
   async updateStats(quizData: {
     trade: string;
     score: number;
