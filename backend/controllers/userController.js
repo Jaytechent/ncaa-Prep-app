@@ -74,7 +74,7 @@ const resetPassword = async (req, res, next) => {
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpires: { $gt: new Date() },
-    });
+    }).select('+resetPasswordToken +resetPasswordExpires');
     if (!user) return res.status(400).json({ message: 'This password reset link is invalid or has expired. Request a new one.' });
 
     user.password = password;
