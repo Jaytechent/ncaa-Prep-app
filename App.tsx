@@ -26,8 +26,8 @@ const mkTheme = (dm: boolean) => ({
 
 // ─── AUTH VIEW ───────────────────────────────────────────────────────────────
 interface AuthViewProps {
-  authMode: 'LOGIN' | 'REGISTER';
-  setAuthMode: (m: 'LOGIN' | 'REGISTER') => void;
+  authMode: 'LOGIN' | 'REGISTER' | 'FORGOT' | 'RESET';
+  setAuthMode: (m: 'LOGIN' | 'REGISTER' | 'FORGOT' | 'RESET') => void;
   authData: { name: string; email: string; password: string };
   setAuthData: React.Dispatch<React.SetStateAction<{ name: string; email: string; password: string }>>;
   authError: string;
@@ -40,6 +40,15 @@ const AuthView: React.FC<AuthViewProps> = ({
 }) => {
   const t = mkTheme(darkMode);
   const dm = darkMode;
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [localError, setLocalError] = useState('');
+  const submitForm = (e: React.FormEvent) => {
+    setLocalError('');
+    if (authMode === 'RESET' && authData.password !== confirmPassword) {
+      e.preventDefault(); setLocalError('Passwords do not match.'); return;
+    }
+    onSubmit(e);
+  };
   return (
     <div className={`min-h-screen ${t.page} flex items-center justify-center p-4`} style={{ fontFamily: MONO }}>
       {/* dot grid bg */}
@@ -56,25 +65,25 @@ const AuthView: React.FC<AuthViewProps> = ({
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2 h-2 bg-[#0057FF]" />
             <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.25em]">
-              {authMode === 'LOGIN' ? 'Identity Check' : 'Recruit Enrollment'}
+              {authMode === 'LOGIN' ? 'Identity Check' : authMode === 'REGISTER' ? 'Recruit Enrollment' : authMode === 'FORGOT' ? 'Account Recovery' : 'Set New Password'}
             </span>
           </div>
           <h2 className="text-2xl font-black text-white uppercase tracking-tight">
-            {authMode === 'LOGIN' ? 'Authorize Access' : 'Initialize Asset'}
+            {authMode === 'LOGIN' ? 'Authorize Access' : authMode === 'REGISTER' ? 'Initialize Asset' : authMode === 'FORGOT' ? 'Recover Access' : 'Reset Password'}
           </h2>
           <p className="text-xs text-gray-500 mt-1">Clearance required for professional modules.</p>
         </div>
 
         {/* Form body */}
         <div className={`border-2 ${t.border} border-t-0 ${dm ? 'bg-[#111]' : 'bg-white'} p-8`}>
-          {authError && (
+          {(authError || localError) && (
             <div className={`border-2 border-black bg-black text-white p-4 text-xs font-bold mb-6 flex items-center gap-3`}>
               <span className="w-2 h-2 bg-[#0057FF] flex-shrink-0" />
-              {authError}
+              {localError || authError}
             </div>
           )}
 
-          <form onSubmit={onSubmit} className="flex flex-col gap-0">
+          <form onSubmit={submitForm} className="flex flex-col gap-0">
             {authMode === 'REGISTER' && (
               <>
                 <label className={`text-[10px] font-black ${t.textMid} uppercase tracking-widest px-4 pt-3 pb-1 border-2 ${t.border} border-b-0 ${t.panel}`}>Full Name</label>
@@ -88,6 +97,7 @@ const AuthView: React.FC<AuthViewProps> = ({
               </>
             )}
 
+            {authMode !== 'RESET' && <>
             <label className={`text-[10px] font-black ${t.textMid} uppercase tracking-widest px-4 pt-3 pb-1 border-2 ${t.border} border-b-0 ${t.panel}`}>
               Aviation ID (Email)
             </label>
@@ -98,33 +108,42 @@ const AuthView: React.FC<AuthViewProps> = ({
               className={`border-2 ${t.border} border-b-0 px-4 py-3 text-sm ${t.input} focus:outline-none focus:bg-[#0d1f3c] transition-colors`}
               style={{ fontFamily: MONO }}
             />
+            </>}
 
+            {authMode !== 'FORGOT' && <>
             <label className={`text-[10px] font-black ${t.textMid} uppercase tracking-widest px-4 pt-3 pb-1 border-2 ${t.border} border-b-0 ${t.panel}`}>
-              Security Pass
+              {authMode === 'RESET' ? 'New Security Pass' : 'Security Pass'}
             </label>
             <input
-              type="password" required value={authData.password}
+              type="password" required minLength={authMode === 'RESET' ? 8 : undefined} value={authData.password}
               onChange={e => setAuthData(prev => ({ ...prev, password: e.target.value }))}
               placeholder="••••••••"
               className={`border-2 ${t.border} px-4 py-3 text-sm ${t.input} focus:outline-none focus:bg-[#0d1f3c] transition-colors`}
               style={{ fontFamily: MONO }}
             />
+            {authMode === 'RESET' && <>
+              <label className={`text-[10px] font-black ${t.textMid} uppercase tracking-widest px-4 pt-3 pb-1 border-2 ${t.border} border-b-0 ${t.panel}`}>Confirm New Security Pass</label>
+              <input type="password" required minLength={8} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Repeat new password" className={`border-2 ${t.border} px-4 py-3 text-sm ${t.input} focus:outline-none focus:bg-[#0d1f3c] transition-colors`} style={{ fontFamily: MONO }} />
+            </>}
+            </>}
 
             <button
               type="submit"
               className="py-4 bg-[#0057FF] text-white font-black text-xs uppercase tracking-widest border-2 border-[#0057FF] hover:bg-black hover:border-black transition-colors mt-4"
               style={{ fontFamily: MONO }}
             >
-              {authMode === 'LOGIN' ? 'Authorize Access →' : 'Initialize Asset →'}
+              {authMode === 'LOGIN' ? 'Authorize Access →' : authMode === 'REGISTER' ? 'Initialize Asset →' : authMode === 'FORGOT' ? 'Send Reset Link →' : 'Save New Password →'}
             </button>
           </form>
 
+          {authMode === 'LOGIN' && <button type="button" onClick={() => { setAuthMode('FORGOT'); setLocalError(''); }} className="w-full text-center mt-4 text-[10px] font-bold text-[#0057FF] hover:underline uppercase tracking-widest" style={{ fontFamily: MONO }}>Forgot password?</button>}
           <button
-            onClick={() => setAuthMode(authMode === 'LOGIN' ? 'REGISTER' : 'LOGIN')}
+            type="button"
+            onClick={() => { setAuthMode(authMode === 'LOGIN' ? 'REGISTER' : 'LOGIN'); setLocalError(''); setConfirmPassword(''); }}
             className={`w-full text-center mt-4 pt-4 border-t ${t.border} text-[10px] font-bold ${t.textMid} hover:text-[#0057FF] transition-colors uppercase tracking-widest`}
             style={{ fontFamily: MONO }}
           >
-            {authMode === 'LOGIN' ? 'Need a clearance? Start Enrollment →' : 'Already registered? Login to Cockpit →'}
+            {authMode === 'LOGIN' ? 'Need a clearance? Start Enrollment →' : authMode === 'REGISTER' ? 'Already registered? Login to Cockpit →' : 'Back to Login →'}
           </button>
         </div>
       </div>
@@ -662,7 +681,7 @@ const App: React.FC = () => {
   const [currentTrade, setCurrentTrade] = useState<Trade | null>(null);
   const [session, setSession]     = useState<QuizSession | null>(null);
   const [stats, setStats]         = useState<UserStats>({ totalQuizzes:0, averageScore:0, bestTrade:null, history:[] });
-  const [authMode, setAuthMode]   = useState<'LOGIN'|'REGISTER'>('LOGIN');
+  const [authMode, setAuthMode]   = useState<'LOGIN'|'REGISTER'|'FORGOT'|'RESET'>('LOGIN');
   const [authData, setAuthData]   = useState({ name:'', email:'', password:'' });
   const [authError, setAuthError] = useState('');
 
@@ -683,6 +702,8 @@ const App: React.FC = () => {
     const handleOffline = () => setIsOnline(false);
     window.addEventListener('online',  handleOnline);
     window.addEventListener('offline', handleOffline);
+    const resetToken = new URLSearchParams(window.location.search).get('resetToken');
+    if (resetToken) { setAuthMode('RESET'); setView('AUTH'); }
     const saved = localStorage.getItem('ncaa_user_data');
     if (saved) {
       try { const p = JSON.parse(saved); setUser(p); if (p.stats) setStats(p.stats); } catch {}
@@ -752,9 +773,21 @@ const App: React.FC = () => {
   const handleAuth = useCallback(async (e: React.FormEvent) => {
     e.preventDefault(); setAuthError('');
     try {
-      let data;
-      if (authMode === 'LOGIN') data = await apiService.login({ email: authData.email, password: authData.password });
-      else data = await apiService.register({ name: authData.name, email: authData.email, password: authData.password });
+      if (authMode === 'FORGOT') {
+        const result = await apiService.requestPasswordReset(authData.email);
+        setAuthError(result.message); return;
+      }
+      if (authMode === 'RESET') {
+        const token = new URLSearchParams(window.location.search).get('resetToken');
+        if (!token) throw new Error('Reset token is missing. Please open the link from your email again.');
+        const result = await apiService.resetPassword(token, authData.password);
+        window.history.replaceState({}, '', window.location.pathname);
+        setAuthMode('LOGIN'); setAuthData(prev => ({ ...prev, password: '' }));
+        setAuthError(result.message); return;
+      }
+      const data = authMode === 'LOGIN'
+        ? await apiService.login({ email: authData.email, password: authData.password })
+        : await apiService.register({ name: authData.name, email: authData.email, password: authData.password });
       setUser(data);
       if (data.stats) setStats(data.stats);
       setView('DASHBOARD');
