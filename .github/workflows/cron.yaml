@@ -1,0 +1,13 @@
+name: OpenClaw Scheduler
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+jobs:
+  trigger-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake up and Trigger Bot
+        run: |
+          curl -X POST https://ncaa-prep-app.onrender.com \
+          -H "Content-Type: application/json"
