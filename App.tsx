@@ -31,7 +31,7 @@ interface AuthViewProps {
   authData: { name: string; email: string; password: string };
   setAuthData: React.Dispatch<React.SetStateAction<{ name: string; email: string; password: string }>>;
   authError: string;
-  onSubmit: (e: React.FormEvent) => Promise<void> | void;
+  onSubmit: (e: React.FormEvent) => Promise<boolean | void> | boolean | void;
   darkMode: boolean;
 }
 
@@ -43,13 +43,23 @@ const AuthView: React.FC<AuthViewProps> = ({
   const [confirmPassword, setConfirmPassword] = useState('');
   const [localError, setLocalError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cooldownSeconds, setCooldownSeconds] = useState(0);
+  useEffect(() => {
+    if (cooldownSeconds <= 0) return;
+    const timer = window.setTimeout(() => setCooldownSeconds(seconds => Math.max(0, seconds - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [cooldownSeconds]);
   const submitForm = async (e: React.FormEvent) => {
     setLocalError('');
     if (authMode === 'RESET' && authData.password !== confirmPassword) {
       e.preventDefault(); setLocalError('Passwords do not match.'); return;
     }
+    e.preventDefault();
     setIsSubmitting(true);
-    try { await onSubmit(e); } finally { setIsSubmitting(false); }
+    try {
+      const succeeded = await onSubmit(e);
+      if (authMode === 'FORGOT' && succeeded !== false) setCooldownSeconds(60);
+    } finally { setIsSubmitting(false); }
   };
   return (
     <div className={`min-h-screen ${t.page} flex items-center justify-center p-4`} style={{ fontFamily: MONO }}>
@@ -131,13 +141,18 @@ const AuthView: React.FC<AuthViewProps> = ({
 
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || (authMode === 'FORGOT' && cooldownSeconds > 0)}
               className="py-4 bg-[#0057FF] text-white font-black text-xs uppercase tracking-widest border-2 border-[#0057FF] hover:bg-black hover:border-black transition-colors mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
               style={{ fontFamily: MONO }}
             >
-              {isSubmitting ? (authMode === 'FORGOT' ? 'Sending Reset Link…' : 'Processing…') : authMode === 'LOGIN' ? 'Authorize Access →' : authMode === 'REGISTER' ? 'Initialize Asset →' : authMode === 'FORGOT' ? 'Send Reset Link →' : 'Save New Password →'}
+              {isSubmitting ? (authMode === 'FORGOT' ? 'Sending Reset Link…' : 'Processing…') : authMode === 'FORGOT' && cooldownSeconds > 0 ? `Resend in ${cooldownSeconds}s` : authMode === 'LOGIN' ? 'Authorize Access →' : authMode === 'REGISTER' ? 'Initialize Asset →' : authMode === 'FORGOT' ? 'Send Reset Link →' : 'Save New Password →'}
             </button>
           </form>
+          {authMode === 'FORGOT' && cooldownSeconds > 0 && (
+            <p role="status" aria-live="polite" className={`mt-3 text-center text-[10px] ${t.textMid}`}>
+              For your security, you can request another reset link in {cooldownSeconds} second{cooldownSeconds === 1 ? '' : 's'}.
+            </p>
+          )}
 
           {authMode === 'LOGIN' && <button type="button" onClick={() => { setAuthMode('FORGOT'); setLocalError(''); }} className="w-full text-center mt-4 text-[10px] font-bold text-[#0057FF] hover:underline uppercase tracking-widest" style={{ fontFamily: MONO }}>Forgot password?</button>}
           <button
@@ -778,7 +793,7 @@ const App: React.FC = () => {
     try {
       if (authMode === 'FORGOT') {
         const result = await apiService.requestPasswordReset(authData.email);
-        setAuthError(result.message); return;
+        setAuthError(result.message); return true;
       }
       if (authMode === 'RESET') {
         const token = new URLSearchParams(window.location.search).get('resetToken');
@@ -794,7 +809,7 @@ const App: React.FC = () => {
       setUser(data);
       if (data.stats) setStats(data.stats);
       setView('DASHBOARD');
-    } catch (err: any) { setAuthError(err.message || 'Authentication failed'); }
+    } catch (err: any) { setAuthError(err.message || 'Authentication failed'); return false; }
   }, [authMode, authData]);
 
   const handleAbort = useCallback(() => {
