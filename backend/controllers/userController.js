@@ -17,7 +17,7 @@ const sendPasswordResetEmail = async (email, resetUrl) => {
     service: 'gmail',
     auth: {
       user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD.replace(/\\s/g, ''),
+      pass: process.env.GMAIL_APP_PASSWORD.replace(/\s/g, ''),
     },
   });
   await transporter.sendMail({
@@ -46,7 +46,7 @@ const forgotPassword = async (req, res, next) => {
     user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
     await user.save();
 
-    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\\/$/, '');
+    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
     const resetUrl = `${frontendUrl}/?resetToken=${rawToken}`;
     try {
       await sendPasswordResetEmail(user.email, resetUrl);
