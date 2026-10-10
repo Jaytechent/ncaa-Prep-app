@@ -15,6 +15,10 @@ const sendPasswordResetEmail = async (email, resetUrl) => {
   }
   const transporter = nodemailer.createTransport({
     service: 'gmail',
+    // Fail quickly instead of leaving the browser stuck on “Sending…” for minutes.
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     auth: {
       user: process.env.GMAIL_USER,
       pass: process.env.GMAIL_APP_PASSWORD.replace(/\s/g, ''),
@@ -77,6 +81,12 @@ const forgotPassword = async (req, res, next) => {
     try {
       await sendPasswordResetEmail(user.email, resetUrl);
     } catch (mailError) {
+      // Log diagnostic metadata only; never log reset URLs, tokens, or credentials.
+      console.error('Password reset email delivery failed:', {
+        code: mailError.code || 'UNKNOWN',
+        command: mailError.command || null,
+        responseCode: mailError.responseCode || null,
+      });
       await User.updateOne(
         { _id: user._id, resetPasswordToken: hashedToken },
         { $unset: { resetPasswordToken: 1, resetPasswordExpires: 1, resetPasswordRequestedAt: 1 } }
